@@ -1,0 +1,5 @@
+$('#comment_textarea').val('')
+<!--なぜbooks/dtail全体を読み込むのか-->
+$('.detail_table').html("<%= j(render 'books/detail', book: @book) %>")
+$('.comment_table').html("<%= j(render 'book_comments/table', book_comments: @book.book_comments ) %>")
+<!--jsファイルの最初にアンダーバーは必要か-->
