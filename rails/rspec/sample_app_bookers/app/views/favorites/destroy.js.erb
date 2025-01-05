@@ -1,2 +1,0 @@
-$('.table_favorite'+<%= @favorite.book_id %>).html("<%= j(render 'favorites/book',  book: @favorite.book, user: @favorite.user ) %>")
-<!--変数の定義がbooks/detailのrenderと違うのはなぜ？-->
