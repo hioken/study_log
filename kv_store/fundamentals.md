@@ -52,6 +52,14 @@
 
 ### 使用例
 ```bash
+# str
+SET user:1:name 'juna'
+GET user:1:name
+
+SET counter '1'
+INCR counter # (integer) 2
+
+
 # List(Que)
 LPUSH messages "Hello"
 RPUSH messages "World"
