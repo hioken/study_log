@@ -73,3 +73,40 @@ save 秒毎 変更数
 appendonly yes
 appendsync 秒数
 ```
+
+# Failover
+- SentinelサーバーがMasterサーバーに定期的にPINGを送信して、指定時間応答がない場合、Slaveに昇格指示を送る
+
+# 設定ファイル
+## redis.conf
+| 設定項目              | 説明                                                              | 例                           |
+|----------------------|------------------------------------------------------------------|------------------------------|
+| **port**             | Redisサーバーのリスンポートを指定。                                  | `port 6379`                  |
+| **bind**             | 接続を許可するホストを指定。                                        | `bind 127.0.0.1 ::1`         |
+| **timeout**          | クライアントのアイドルタイムアウト（秒）。                         | `timeout 300`                |
+| **save**             | データを保存するスナップショットのトリガー条件。                    | `save 900 1`                 |
+| **appendonly**       | AOF（Append-Only File）モードを有効化するか。                      | `appendonly yes`             |
+| **maxmemory**        | Redisが使用できる最大メモリ量。                                    | `maxmemory 2gb`              |
+| **maxmemory-policy** | メモリ不足時のデータ削除ポリシー。                                  | `maxmemory-policy allkeys-lru` |
+| **requirepass**      | クライアント接続時の認証パスワード。                                | `requirepass mysecretpass`   |
+| **tls-cert-file**    | TLS証明書ファイルの設定。                                          | `tls-cert-file /etc/ssl/certs/redis.crt` |
+| **tls-key-file**     | TLS秘密鍵ファイルの設定。                                          | `tls-key-file /etc/ssl/private/redis.key` |
+| **replicaof**        | マスターサーバーの指定（スレーブ専用）。                           | `replicaof redis-master 6379` |
+| **masterauth**       | マスター接続時の認証情報。                                         | `masterauth masterpassword` |
+
+## sentinel.conf
+| 設定項目                        | 説明                                                              | 例                                           |
+|--------------------------------|------------------------------------------------------------------|----------------------------------------------|
+| **port**                       | Sentinelのリスンポートを指定。                                      | `port 26379`                                |
+| **bind**                       | Sentinelがバインドするアドレス。                                    | `bind 127.0.0.1`                            |
+| **sentinel monitor**           | 監視するマスターサーバーを設定。                                    | `sentinel monitor mymaster redis-master 6379 2` |
+| **sentinel auth-pass**         | マスター認証のパスワード。                                          | `sentinel auth-pass mymaster mysecretpass`   |
+| **sentinel down-after-milliseconds** | マスターがダウンとみなされるまでの時間（ms）。                   | `sentinel down-after-milliseconds mymaster 5000` |
+| **sentinel failover-timeout**  | フェイルオーバープロセス全体のタイムアウト（ms）。                   | `sentinel failover-timeout mymaster 10000`  |
+| **sentinel parallel-syncs**    | フェイルオーバー時のスレーブ並行同期数。                           | `sentinel parallel-syncs mymaster 1`         |
+| **sentinel client-reconfig-script** | マスター変更後に呼び出すスクリプト。                             | `sentinel client-reconfig-script mymaster /path/to/script.sh` |
+
+## その他
+- nodes.conf（Clusterモード用）
+- redis-aof-rewrite.conf（AOFモード用）
+- cluster-config-file（クラスタ構成ファイル）
