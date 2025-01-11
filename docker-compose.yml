@@ -5,7 +5,13 @@ services:
     ports:
       - "6379:6379"
     networks:
-      - redis-network
+      redis-network:
+        ipv4_address: 172.23.0.100
+    healthcheck: # ヘルスチェックを追加
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   redis-slave1:
     build:
@@ -13,42 +19,50 @@ services:
       dockerfile: Dockerfile.redis
     container_name: redis-slave1
     depends_on:
-      - redis-master
+      redis-master:
+        condition: service_healthy
     environment:
-      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_HOST=172.23.0.100
       - REDIS_MASTER_PORT=6379
     networks:
-      - redis-network
+      redis-network:
+        ipv4_address: 172.23.0.101
     command: ["slave-entrypoint.sh"]
-    
+
   redis-slave2:
     build:
       context: .
       dockerfile: Dockerfile.redis
     container_name: redis-slave2
     depends_on:
-      - redis-master
+      redis-master:
+        condition: service_healthy
     environment:
-      - REDIS_MASTER_HOST=redis-master
+      - REDIS_MASTER_HOST=172.23.0.100
       - REDIS_MASTER_PORT=6379
     networks:
-      - redis-network
+      redis-network:
+        ipv4_address: 172.23.0.102
     command: ["slave-entrypoint.sh"]
 
-  # redis-sentinel:
-  #   image: redis:latest
-  #   container_name: redis-sentinel
-  #   command: redis-sentinel /usr/local/etc/redis/sentinel.conf
-  #   depends_on:
-  #     - redis-master
-  #     - redis-slave1
-  #     - redis-slave2
-  #   ports:
-  #     - "26379:26379"
-  #   networks:
-  #     - redis-network
-  #   volumes:
-  #     - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
+  redis-sentinel:
+    image: redis:latest
+    container_name: redis-sentinel
+    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+    restart: always
+    depends_on:
+      redis-master:
+        condition: service_healthy
+    ports:
+      - "26379:26379"
+    networks:
+      redis-network:
+        ipv4_address: 172.23.0.103
+    volumes:
+      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
+    environment:
+      - REDIS_MASTER_HOST=172.23.0.100
+      - REDIS_MASTER_PORT=6379
 
   app:
     build:
@@ -61,13 +75,18 @@ services:
       - redis-master
       - redis-slave1
       - redis-slave2
-      # - redis-sentinel
+      - redis-sentinel
     ports:
       - "3000:3000"
     stdin_open: true
     tty: true
     networks:
-      - redis-network
+      redis-network:
+        ipv4_address: 172.23.0.104
 
 networks:
   redis-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.23.0.0/16

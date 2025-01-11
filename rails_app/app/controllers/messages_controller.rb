@@ -1,6 +1,6 @@
 class MessagesController < ApplicationController
   def index
-    @messages = Message.all($redis_slave)
+    @messages = Message.all($redis_master)
   end
 
   def create

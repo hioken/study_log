@@ -1,6 +1,22 @@
 FROM redis:latest
 
+# 必要なディレクトリの作成
+RUN mkdir -p /usr/local/etc/redis
+
+# 必要なデバッグツールのインストール
+RUN apt-get update && apt-get install -y \
+    iputils-ping \
+    net-tools \
+    procps \
+    dnsutils \
+    curl \
+    telnet \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+# エントリーポイントスクリプトのコピーと権限設定
 COPY ./slave-entrypoint.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/slave-entrypoint.sh
 
+# デフォルトコマンドの指定
 CMD ["redis-server"]
