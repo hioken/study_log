@@ -1,68 +1,86 @@
 services:
-  redis-master:
+  # redis-master:
+  #   image: redis:latest
+  #   container_name: redis-master
+  #   ports:
+  #     - "6379:6379"
+  #   networks:
+  #     redis-network:
+  #       ipv4_address: 172.23.0.100
+  #   healthcheck: # ヘルスチェックを追加
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 3
+
+  # redis-slave1:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.redis
+  #   container_name: redis-slave1
+  #   depends_on:
+  #     redis-master:
+  #       condition: service_healthy
+  #   environment:
+  #     - REDIS_MASTER_HOST=172.23.0.100
+  #     - REDIS_MASTER_PORT=6379
+  #   networks:
+  #     redis-network:
+  #       ipv4_address: 172.23.0.101
+  #   command: ["slave-entrypoint.sh"]
+
+  # redis-slave2:
+  #   build:
+  #     context: .
+  #     dockerfile: Dockerfile.redis
+  #   container_name: redis-slave2
+  #   depends_on:
+  #     redis-master:
+  #       condition: service_healthy
+  #   environment:
+  #     - REDIS_MASTER_HOST=172.23.0.100
+  #     - REDIS_MASTER_PORT=6379
+  #   networks:
+  #     redis-network:
+  #       ipv4_address: 172.23.0.102
+  #   command: ["slave-entrypoint.sh"]
+
+  # redis-sentinel:
+  #   image: redis:latest
+  #   container_name: redis-sentinel
+  #   command: redis-sentinel /usr/local/etc/redis/sentinel.conf
+  #   restart: always
+  #   depends_on:
+  #     redis-master:
+  #       condition: service_healthy
+  #   ports:
+  #     - "26379:26379"
+  #   networks:
+  #     redis-network:
+  #       ipv4_address: 172.23.0.103
+  #   volumes:
+  #     - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
+  #   environment:
+  #     - REDIS_MASTER_HOST=172.23.0.100
+  #     - REDIS_MASTER_PORT=6379
+
+  redis-shard1:
     image: redis:latest
-    container_name: redis-master
+    container_name: redis-shard1
     ports:
-      - "6379:6379"
+      - "6381:6379"
     networks:
       redis-network:
-        ipv4_address: 172.23.0.100
-    healthcheck: # ヘルスチェックを追加
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
+        ipv4_address: 172.23.0.201
 
-  redis-slave1:
-    build:
-      context: .
-      dockerfile: Dockerfile.redis
-    container_name: redis-slave1
-    depends_on:
-      redis-master:
-        condition: service_healthy
-    environment:
-      - REDIS_MASTER_HOST=172.23.0.100
-      - REDIS_MASTER_PORT=6379
-    networks:
-      redis-network:
-        ipv4_address: 172.23.0.101
-    command: ["slave-entrypoint.sh"]
-
-  redis-slave2:
-    build:
-      context: .
-      dockerfile: Dockerfile.redis
-    container_name: redis-slave2
-    depends_on:
-      redis-master:
-        condition: service_healthy
-    environment:
-      - REDIS_MASTER_HOST=172.23.0.100
-      - REDIS_MASTER_PORT=6379
-    networks:
-      redis-network:
-        ipv4_address: 172.23.0.102
-    command: ["slave-entrypoint.sh"]
-
-  redis-sentinel:
+  redis-shard2:
     image: redis:latest
-    container_name: redis-sentinel
-    command: redis-sentinel /usr/local/etc/redis/sentinel.conf
-    restart: always
-    depends_on:
-      redis-master:
-        condition: service_healthy
+    container_name: redis-shard2
     ports:
-      - "26379:26379"
+      - "6382:6379"
     networks:
       redis-network:
-        ipv4_address: 172.23.0.103
-    volumes:
-      - ./sentinel.conf:/usr/local/etc/redis/sentinel.conf
-    environment:
-      - REDIS_MASTER_HOST=172.23.0.100
-      - REDIS_MASTER_PORT=6379
+        ipv4_address: 172.23.0.202
 
   app:
     build:
@@ -72,10 +90,12 @@ services:
     volumes:
       - ./rails_app:/app
     depends_on:
-      - redis-master
-      - redis-slave1
-      - redis-slave2
-      - redis-sentinel
+      # - redis-master
+      # - redis-slave1
+      # - redis-slave2
+      # - redis-sentinel
+      - redis-shard1
+      - redis-shard2
     ports:
       - "3000:3000"
     stdin_open: true
