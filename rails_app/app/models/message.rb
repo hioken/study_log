@@ -6,17 +6,6 @@ class Message
     @content = content
   end
 
-  # def self.all(redis)
-  #   redis.keys("message:*").map do |key|
-  #     id = key.split(":").last
-  #     Message.new(id, redis.get(key))
-  #   end
-  # end
-
-  # def save(redis)
-  #   redis.set("message:#{id}", content)
-  # end
-
   def save_to_shard
     shard = self.class.shard_for(id)
     shard.set("message:#{id}", content)
@@ -24,6 +13,7 @@ class Message
 
   def self.all_from_shards
     messages = []
+    p $redis_shards
     $redis_shards.each do |shard|
       shard.keys("message:*").each do |key|
         id = key.split(":").last

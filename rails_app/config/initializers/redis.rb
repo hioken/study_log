@@ -1,31 +1,36 @@
-# $redis_master = Redis.new(
-#   url: "redis://redis-sentinel:26379",
-#   role: :master
-# )
-# $redis_slave = Redis.new(
-#   url: "redis://redis-sentinel:26379",
-#   role: :slave
-# )
+shard1_sentinels = [
+  { host: "redis-shard1-sentinel1", port: 26379 },
+  { host: "redis-shard1-sentinel2", port: 26379 },
+  { host: "redis-shard1-sentinel3", port: 26379 }
+]
 
-# sentinels = [
-#   { host: "redis-sentinel", port: 26379 },
-# ]
-
-# # マスターへの接続
-# $redis_master = Redis.new(
-#   url: "redis://mymaster",
-#   sentinels: sentinels,
-#   role: :master
-# )
-
-# # スレーブへの接続（コメントアウト部分も有効化可能）
-# $redis_slave = Redis.new(
-#   url: "redis://mymaster",
-#   sentinels: sentinels,
-#   role: :slave
-# )
+shard2_sentinels = [
+  { host: "redis-shard2-sentinel1", port: 26379 },
+  { host: "redis-shard2-sentinel2", port: 26379 },
+  { host: "redis-shard2-sentinel3", port: 26379 }
+]
 
 $redis_shards = [
-  Redis.new(host: "172.23.0.201", port: 6379),
-  Redis.new(host: "172.23.0.202", port: 6379),
+  Redis.new(
+    url: "redis://mymaster",
+    sentinels: shard1_sentinels,
+    role: :master
+  ),
+  Redis.new(
+    url: "redis://mymaster",
+    sentinels: shard2_sentinels,
+    role: :master
+  )
 ]
+
+=begin
+改善コード、動作未確認
+sentinels = [[], []]
+
+3.times do |i|
+  sentinels[0] << { host: "redis-shard1-sentinel#{i + 1}", port: 26379 }
+  sentinels[1] << { host: "redis-shard2-sentinel#{i + 1}", port: 26379 }
+end
+
+$redis_shards = sentinels.map { |ss| Redis.new(url: "redis://mymaster", sentinels: ss, role: :master) }
+=end
