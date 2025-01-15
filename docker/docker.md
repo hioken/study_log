@@ -288,6 +288,7 @@ Bind Mountは、ホスト側の特定ディレクトリをコンテナ内に直�
 | **networks**        | `networks: - default`             | ネットワークを指定してサービスを接続。                                                     |
 | **environment**     | `environment: - APP_ENV=production` | 環境変数を指定。                                                                           |
 | **depends_on**      | `depends_on: - db`                | 他のサービスに依存する関係を設定。                                                         |
+|                     | `condition: - option`                | service_started or service_helthy                                                         |
 | **command**         | `command: python app.py`          | コンテナ起動時に実行するコマンドを指定。                                                   |
 | **restart**         | `restart: always`                 | 再起動ポリシーを指定（例: `always`, `on-failure`など）。                                    |
 | **deploy**          | `deploy: replicas: 3`             | スケーリング設定（Swarmモードで使用）。                                                    |

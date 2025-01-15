@@ -16,6 +16,21 @@ user.microposts.create(content: 'Published') # 即座にINSERTが実行
   - cacheしたいクエリを発行するアソシエーションメソッドをモデルで定義
   - それをincludes(:method)で呼び出す
 
+## methods
+### has_many
+```ruby
+has_many :メソッド名, 
+         -> { 条件 },                # スコープを指定（任意）
+         class_name: "クラス名",     # 関連先のモデル名を指定（デフォルト以外のクラス名を使う場合）
+         foreign_key: "外部キー名",  # 外部キーを指定（デフォルト以外のキーを使う場合）
+         primary_key: "主キー名",    # 主キーを指定（デフォルト以外のキーを使う場合）
+         through: :中間テーブル名,   # 中間テーブルを経由する場合（has_many :through）
+         source: :関連元,            # 中間テーブル経由の関連名
+         dependent: :destroy,       # 関連先が削除されたときの動作 (:destroy, :nullify, :restrict_with_error など)
+         inverse_of: :関連先メソッド名, # 双方向の関連付けを明示
+         validate: true             # 関連付けを保存時に検証するかどうか（デフォルト: true）
+```
+
 # Cookie API
 ## 概要
 ### type
