@@ -11,3 +11,18 @@
 | Electron          | Web APIs + Node.js    | ブラウザとNode.jsを組み合わせ、デスクトップアプリを開発するための環境。                |
 | Google Apps Script| GoogleサービスAPI     | Google Workspace（スプレッドシートやGmailなど）と連携するためのAPI群。               |
 | React Native      | React Native API      | モバイルアプリ用。UIコンポーネント（`View`, `Text`）、ネイティブモジュール呼び出しなど。  |
+
+# ECMAScriptとグローバルオブジェクト
+- **ECMAScript単体では動作できない**:
+  - ECMAScriptはJavaScriptの言語仕様を定義したもので、単体では実行環境を持たない。
+  - 実行するには、実行環境がグローバルオブジェクトを設定する必要がある。
+
+- **グローバルオブジェクトが必要な理由**:
+  - ECMAScript仕様では、グローバル変数や関数は必ずグローバルオブジェクトのプロパティとして登録される。
+  - 実行環境がこのオブジェクトを作成しないと、JavaScriptコードは動作しない。
+
+- **例: ECMAScriptの仕様に基づく動作**
+```javascript
+var globalVar = "Hello, World!";
+console.log(globalThis.globalVar); // "Hello, World!"
+```
