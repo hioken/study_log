@@ -70,32 +70,3 @@ console.log(window.fetch);    // Fetch API
 console.log(window.setTimeout); // Timer API
 ```
 
-### グローバルオブジェクトの重要なポイント
-#### グローバルスコープの挙動
-- **グローバル変数や関数はグローバルオブジェクトのプロパティ**になる。
-```javascript
-var myVar = "Test";
-function myFunc() {
-  return "Hello";
-}
-
-console.log(window.myVar); // "Test"
-console.log(window.myFunc()); // "Hello"
-```
-
-- **`let`や`const`で宣言された変数は登録されない**:
-```javascript
-let myLet = "Test";
-console.log(window.myLet); // undefined
-```
-
-#### `globalThis`の利用
-- **`globalThis`とは？**
-  - ECMAScript 2020（ES11）で導入。
-  - 環境に依存せず、グローバルオブジェクトを参照可能。
-
-- **例: 環境に依存しないコード**
-```javascript
-globalThis.myValue = 42;
-console.log(globalThis.myValue); // 42
-```
