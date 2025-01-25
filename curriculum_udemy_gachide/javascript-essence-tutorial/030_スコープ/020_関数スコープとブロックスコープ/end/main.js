@@ -13,5 +13,11 @@ if(true) {
     }
 }
 
-d();
-console.log(c);
+// d();
+// console.log(c);
+
+
+const abc = 1000;
+{
+    console.log(abc); // 外部スコープは参照可能
+}
