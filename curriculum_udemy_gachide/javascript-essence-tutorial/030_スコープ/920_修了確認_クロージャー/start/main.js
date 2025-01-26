@@ -15,3 +15,15 @@
  * ※前に行った計算結果をもとに四則演算を行います。
  * ※四則演算は"+","-","*","/"を数値ではさんで計算を行います。
  */
+
+function calcFactory(num1) {
+  return {
+    plus: (num2) => {return num1 + num2},
+    minus: (num2) => {return num1 - num2},
+    multiply: (num2) => {return num1 * num2},
+    divide: (num2) => {return num1 / num2}
+  }
+}
+
+calc = calcFactory(3)
+console.log(calc.multiply(3))

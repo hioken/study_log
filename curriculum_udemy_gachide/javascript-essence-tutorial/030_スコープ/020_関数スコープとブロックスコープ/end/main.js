@@ -1,23 +1,32 @@
-function a() {
-    let b = 0;
-    console.log(b);
-}
+// function a() {
+//     let b = 0;
+//     console.log(b);
+// }
 
-a();
+// a();
 
-if(true) {
-    let c = 1;
+// if(true) {
+//     let c = 1;
     
-    let d = function() {
-        console.log('d is called');
-    }
+//     let d = function() {
+//         console.log('d is called');
+//     }
+// }
+
+// // d();
+// // console.log(c);
+
+
+// const abc = 1000;
+// {
+//     console.log(abc); // 外部スコープは参照可能
+// }
+
+
+let a = 100;
+
+function abc() {
+    console.log(a);
 }
 
-// d();
-// console.log(c);
-
-
-const abc = 1000;
-{
-    console.log(abc); // 外部スコープは参照可能
-}
+abc();
