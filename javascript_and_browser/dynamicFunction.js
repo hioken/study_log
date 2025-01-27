@@ -1,3 +1,14 @@
+function makeValidator(rules) {
+  return function validate(data) {
+    for (const [key, condition] of Object.entries(rules)) {
+      if (!condition(data[key])) {
+        throw new Error(`Validation failed for ${key}`);
+      }
+    }
+    return true;
+  };
+}
+
 const userValidator = makeValidator({
   name: (value) => typeof value === "string" && value.length > 2,
   age: (value) => typeof value === "number" && value > 0,
