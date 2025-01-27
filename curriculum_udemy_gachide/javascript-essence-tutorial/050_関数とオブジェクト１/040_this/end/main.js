@@ -5,3 +5,7 @@ const person = {
     }
 }
 person.hello();
+
+const fn = person.hello;
+
+fn()

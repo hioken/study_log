@@ -5,10 +5,16 @@
  * ようにcalcFactory関数内の実装を変更してみてください。
  */
 function calcFactory(val, callback) {
+    function callback1s(arg) {
+        setTimeout(() => {callback(arg)}, 1000);
+    }
     return {
         plus: function(target) {
             const newVal = val + target;
-            callback(`${val} + ${target} = ${newVal}`);
+            // const fn = function() {callback(`${val} + ${target} = ${newVal}`)};
+            // setTimeout(fn, 1000)
+            callback1s(`${val} + ${target} = ${newVal}`)
+
             val = newVal;
         },
         minus: function(target) {

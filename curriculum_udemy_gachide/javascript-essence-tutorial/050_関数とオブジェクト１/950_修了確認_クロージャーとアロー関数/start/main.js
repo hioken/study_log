@@ -6,10 +6,10 @@
  * addNumberFactoryを短く書き直してみましょう。
  */
 function addNumberFactory(num) {
-    function addNumber(value) {
-        return num + value;
-    }
-    return addNumber;
+    // function addNumber(value) {
+        // return num + value;
+    // }
+    return (value) => num + value;
 }
 
 const add5 = addNumberFactory(5);
@@ -24,12 +24,12 @@ function incrementFactory() {
     
     let num = 0;
 
-    function a() {
-        num = num + 1;
-        console.log(num);
-    }
+    // function a() {
+    //     num = num + 1;
+    //     console.log(num);
+    // }
 
-    return a;
+    return () => {console.log(num += 1)};
 }
 
 const increment = incrementFactory();

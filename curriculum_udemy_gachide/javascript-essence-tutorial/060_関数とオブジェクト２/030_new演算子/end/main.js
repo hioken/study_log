@@ -19,3 +19,15 @@ function newOpe(C, ...args) {
 
 const instance = newOpe(F, 1, 2);
 console.log(instance)
+
+// function A() {
+//     this.prop1 = 'a';
+// }
+
+// A.prototype = {
+//     prop2: 'b'
+// }
+
+// const a1 = new A;
+
+// console.log(a1);

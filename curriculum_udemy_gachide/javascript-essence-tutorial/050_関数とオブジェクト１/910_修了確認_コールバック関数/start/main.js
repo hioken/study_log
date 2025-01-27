@@ -6,13 +6,16 @@
  * 
  * ※必ずperson.helloメソッドは解答内で使用してください。
  */
-const person = {
-    hello: function () {
-        return 'hello Tom';
-    }
-}
-
-// setTimeout(/** ここに追記 */, 1000);
+// const person = {
+//     hello: function () {
+//         return 'hello Tom';
+//     }
+// }
+// // setTimeout(/** ここに追記 */, 1000);
+// // setTimeout(person.hello, 1000);
+// setTimeout(function () {
+//     console.log(person.hello());
+// }, 1000);
 
 /**
  * 問題２：
@@ -26,6 +29,10 @@ const person = {
  */
 
 
+// setTimeout(function () {
+//     alert(person.hello());
+// }, 1000);
+
 /**
  * 問題３：
  * objにgreetingというメソッドを実装しました。
@@ -36,22 +43,22 @@ const person = {
  * この時、１秒後にコンソールに出力されるのは
  * 'hello'または'hey'のどちらでしょうか？
  */
-const obj = {};
-obj.greeting = function() {
-    console.log('hello');
-}
+// const obj = {};
+// obj.greeting = function() {
+//     console.log('hello');
+// }
 
-function after1s(callack) {
-    setTimeout(callack, 1000);
-}
+// function after1s(callack) {
+//     setTimeout(callack, 1000);
+// }
 
-// この時点で実行します。
-// after1s(obj.greeting);
+// // この時点で実行します。
+// // after1s(obj.greeting);
 
-// この後でgreetingを書き換えます。
-obj.greeting = function() {
-    console.log('hey');
-}
+// // この後でgreetingを書き換えます。
+// obj.greeting = function() {
+//     console.log('hey');
+// }
 
 
 /**
@@ -65,32 +72,32 @@ obj.greeting = function() {
  */
 function calcFactory(val) {
     return {
-        plus: function(target) {
+        plus: function(target, cb) {
             const newVal = val + target;
-            console.log(`${val} + ${target} = ${newVal}`);
+            cb(`${val} + ${target} = ${newVal}`);
             val = newVal;
         },
-        minus: function(target) {
+        minus: function(target, cb) {
             const newVal = val - target;
-            console.log(`${val} - ${target} = ${newVal}`);
+            cb(`${val} - ${target} = ${newVal}`);
             val = newVal;
         },
-        multiply: function(target) {
+        multiply: function(target, cb) {
             const newVal = val * target;
-            console.log(`${val} x ${target} = ${newVal}`);
+            cb(`${val} x ${target} = ${newVal}`);
             val = newVal;
         },
-        divide: function(target) {
+        divide: function(target, cb) {
             const newVal = val / target;
-            console.log(`${val} / ${target} = ${newVal}`);
+            cb(`${val} / ${target} = ${newVal}`);
             val = newVal;
         }
     };
 }
 
 const calc = calcFactory(10);
-calc.plus(5); 
-calc.minus(3); 
-calc.multiply(3);
-calc.divide(2);
+calc.plus(5, console.log); 
+calc.minus(3, console.log); 
+calc.multiply(3, console.log);
+calc.divide(2, console.log);
 
