@@ -56,16 +56,13 @@ console.log(globalThis.myValue); // 42
 1. グローバルスコープ
 2. スクリプトスコープ
 3. ブロックスコープ, 関数スコープ
-
 ### ブロックスコープ
 - Jsでは`{}`でスコープを区切る事ができる
-
 ### 参照範囲
 - Jsでは外部(レキシカルLexical)スコープが参照可能
 - そのスコープで参照しようとした変数や関数がない場合、一つ外のスコープを参照する
   - つまり同名の定義がされていた場合、より内側のスコープのものが参照される
 
-## グローバルオブジェクト
 ## 変数
 ### 種類
 | 特徴              | const                                      | let                               |
@@ -102,6 +99,7 @@ let {prop} = obj;
 
 ## Object
 ### プリミティブ型
+#### 一覧
 | データ型         | リテラル例                           | 説明                                                                                       |
 |------------------|-------------------------------------|------------------------------------------------------------------------------------------|
 | 数値型 (Number)   | 42, 3.14, NaN, Infinity            | 整数や浮動小数点数を表す。特殊値`NaN`や`Infinity`も含む。                                     |
@@ -112,22 +110,25 @@ let {prop} = obj;
 | シンボル型 (Symbol)| Symbol('id')                      | ユニークな識別子を生成するための型。主にオブジェクトのプロパティキーとして利用。                 |
 | ビッグイント型 (BigInt) | 123n, BigInt(123)                | 任意の大きさの整数を表す型。`n`を末尾に付けることで表現。                                       |
 
-### オブジェクト型
-#### 関数
-- 後述
-#### 配列
+#### シンボル
+- 一意の値を返すデータ
+- `Symbol()`の戻り値
+- 引数で名前付けを行うことが出来る
+  - この際、名前が重複していても実際の値は違うため、あくまでラベル付けというだけ
 
-### 真偽値(truthy, falsy)
-- falsy
-  - `false`
-  - `0`
-  - `0n`
-  - `null`
-  - `undefined`
-  - `NaN`
+#### 基本仕様
+- プリミティブ型に対して、[ラッパーオブジェクト](#ラッパーオブジェクト)のメソッドを実行すると、以下のロジックで処理が行われる
+1. ラッパーオブジェクトを生成
+2. ラッパーオブジェクトから指定のメソッドが呼び出す
+3. 呼び出しに成功した場合は戻り値、失敗した場合は`undefined`を返す
+4. ラッパーオブジェクトを破棄
 
-#### オブジェクト型(Json)
-##### 基本操作
+### オブジェクト型基礎
+#### 基本仕様(Object)
+- プロパティとディスクリプターのセットを複数保持できるオブジェクト
+  - プロパティに型の区別はなく、全て文字列として扱われる
+- valueを呼び出す際は、`obj.prop`または、`obj['prop']`で呼び出す
+  - []の値が数値の場合、暗黙的な型変換が行われる
 ```js
 // 宣言
 let obj = {
@@ -141,6 +142,137 @@ let obj = {
 obj.property; obj['property'];
 
 ```
+- メソッド構文を使うことで、プロトタイプチェーン上で特殊な扱いを受けるメソッド関数を定義出来る
+- ECMSや拡張機能機能から、特殊なオブジェクト型を作成できるFunctionが多く提供されている
+### ディスクリプター
+#### 概要
+- プロパティに設定できるオプション
+#### 説明
+- `value`: 値
+- `writable`: 値の変更の可否
+  - `true` or `false`
+- `configurable`: プロパティの削除 + ディスクリプタの変更の可否
+  - `true` or `false`
+- `enumerable`: 列挙可能性
+  - `true` or `false`
+  - プロトタイプチェーン上の位置に関係なく、プロパティ一覧を参照する処理に含めなくする
+  - ただし一部処理には無効(`Object.getOwnPropertyNames()`, `Object.getownPropertyDescriptors()`, `Reflect.ownKeys()`, `in`)
+- `get`: `.`及び`[]`でプロパティが取得された際の処理
+  - `undefined` or `function`
+- `set`: プロパティに対して`=`を行った際の処理
+  - `undefined` or `function`
+#### 操作
+- 取得: `Object.getOwnPropertyDescriptor(obj, "prop")`
+- 編集: `Object.defineProperty` or `Object.defineProperties`
+```js
+const obj = {};
+Object.defineProperty(obj, "key", {
+  value: "value",
+  writable: false,
+  enumerable: true
+});
+console.log(obj.key);
+obj.key = "new value"; // 無視される
+```
+
+### 派生オブジェクト
+#### 関数(Function)
+- [後述](#関数オブジェクト)
+#### 配列(Array)
+- `[v1, v2]`リテラルを持ち、それをそれぞれ0~nの**プロパティとして**保存できるオブジェクト
+- スプレッド構文`...`で展開可能
+- メソッド索引
+| メソッド名         | 引数                    | 説明                                                     |
+|--------------------|-------------------------|---------------------------------------------------------|
+| push              | 要素                    | 配列の末尾に要素を追加                                   |
+| pop               | なし                    | 配列の末尾から要素を削除し、その値を返す                 |
+| shift             | なし                    | 配列の先頭から要素を削除し、その値を返す                 |
+| unshift           | 要素                    | 配列の先頭に要素を追加                                   |
+| includes          | 要素                    | 指定した要素が配列に含まれるかを確認                     |
+| indexOf           | 要素, 開始位置（省略可） | 指定した要素の最初のインデックスを返す                   |
+| lastIndexOf       | 要素, 開始位置（省略可） | 指定した要素の最後のインデックスを返す                   |
+| splice            | 開始位置, 削除数, 追加要素 | 配列を変更し、削除した要素を返す                         |
+| slice             | 開始位置, 終了位置      | 配列の一部を抽出して新しい配列を返す                     |
+| concat            | 配列                    | 配列を結合して新しい配列を返す                           |
+| forEach           | コールバック関数         | 各要素に対してコールバック関数を実行                     |
+| map               | コールバック関数         | 各要素を変換した新しい配列を生成                         |
+| filter            | コールバック関数         | 条件に一致する要素を抽出して新しい配列を生成             |
+| find              | コールバック関数         | 条件に一致する最初の要素を返す（見つからなければ`undefined`）|
+| findIndex         | コールバック関数         | 条件に一致する最初の要素のインデックスを返す             |
+| reduce            | コールバック関数, 初期値 | 要素を集約して単一の値を生成                             |
+| sort              | 比較関数（省略可）       | 配列を並べ替える                                         |
+| reverse           | なし                    | 配列の要素を反転                                         |
+| flat              | 階層の深さ（省略可）     | 配列をフラット化                                         |
+| join              | 区切り文字（省略可）     | 配列を文字列に変換して返す                               |
+| toString          | なし                    | 配列をカンマ区切りの文字列に変換                         |
+
+#### ラッパーオブジェクト
+- プリミティブ型の`__proto__`と同一の`prototype`を持つコンストラクタを`new`で呼び出すと生成できる
+- プリミティブ型を操作したい時に便利なメソッドが揃っている
+```js
+const upper = (new String('str')).toUpperCase;
+```
+
+### 真偽値(truthy, falsy)
+- falsy
+  - `false`
+  - `0`
+  - `0n`
+  - `null`
+  - `undefined`
+  - `NaN`
+
+### 内部スロット
+| 内部スロット | 説明|
+|----------------------------------|---------------------------------------------------------------------|
+| **Object**                       |        ==========                                                             |
+| [[Prototype]]                    | オブジェクトのプロトタイプを指す。                                 |
+|                                  | **アクセス:** `__proto__` または `Object.getPrototypeOf`。        |
+| [[Extensible]]                   | オブジェクトがプロパティの追加を許可するかどうかを表すフラグ。     |
+|                                  | **操作:** `Object.preventExtensions` で拡張禁止。                |
+| [[Get]] / [[Set]]                | プロパティの取得/設定時に呼び出される内部メソッド。               |
+| [[DefineOwnProperty]]            | プロパティの定義を処理する内部メソッド（`Object.defineProperty` で利用）。 |
+| [[Delete]]                       | プロパティの削除を処理する内部メソッド（`delete obj.prop` で利用）。|
+| [[OwnPropertyKeys]]              | 自身が持つプロパティキーのリストを取得する。                       |
+|                                  |                                                                     |
+| **Function**                     | ==========                                                                    |
+| [[FunctionKind]]                 | 関数の種類（`"normal"` / `"classConstructor"`など）を表す。         |
+| [[Environment]]                  | 関数が作成された環境（スコープチェーン）。                         |
+| [[FormalParameters]]             | 関数の仮引数リスト。                                               |
+| [[Code]]                         | 関数の実行コードを保持。                                           |
+| [[Call]]                         | 通常の関数呼び出し時に実行される内部メソッド。                     |
+| [[Construct]]                    | `new` 演算子で呼び出されたときに実行される内部メソッド。           |
+| [[BoundThis]]                    | `Function.prototype.bind` によってバインドされた `this` を保持。   |
+| [[BoundArguments]]               | `bind` によって固定された引数のリスト。                            |
+| [[Realm]]                        | 関数が属する実行コンテキスト（異なる `iframe` などで異なる Realm を持つ）。|
+| [[Strict]]                       | 関数が strict モードかどうかを示すフラグ。                         |
+|                                  |                                                                     |
+| **Array**                        | ==========                                                                    |
+| [[DefineOwnProperty]]            | 配列の長さ（`length`）の更新時に特別な処理を行う。                 |
+| [[OwnPropertyKeys]]              | インデックスプロパティと非インデックスプロパティを適切に列挙する内部スロット。 |
+|                                  |                                                                     |
+| **Map / Set**                    | ==========                                                                    |
+| [[MapData]] / [[SetData]]        | MapやSetが保持するデータの内部リスト（キーや値）。                  |
+|                                  |                                                                     |
+| **Promise**                      | ==========                                                                    |
+| [[PromiseState]]                 | Promiseの状態を表す（`pending` / `fulfilled` / `rejected`）。       |
+| [[PromiseResult]]                | Promiseの解決値や拒否理由を保持。                                   |
+| [[PromiseFulfillReactions]]      | 成功時に実行されるリアクションリスト。                            |
+| [[PromiseRejectReactions]]       | 失敗時に実行されるリアクションリスト。                            |
+|                                  |                                                                     |
+| **Generator / Iterator**         | ==========                                                                    |
+| [[GeneratorState]]               | ジェネレータの状態（`suspendedStart` / `executing` など）。         |
+| [[GeneratorContext]]             | ジェネレータ関数の停止位置やスコープ情報を保持。                   |
+|                                  |                                                                     |
+| **Proxy**                        | ==========                                                                    |
+| [[ProxyTarget]]                  | プロキシがラップしている元のオブジェクト。                          |
+| [[Handler]]                      | プロキシの挙動を制御する `handler` オブジェクト。                   |
+|                                  |                                                                     |
+| **その他の型**                   | ==========                                                                    |
+ [[StringData]]              | String オブジェクトが保持する文字列データ。                        |
+ [[BooleanData]]             | Boolean オブジェクトが保持する真偽値データ。                       |
+ [[NumberData]]              | Number オブジェクトが保持する数値データ。                          |
+ [[Description]]             | Symbol が持つ説明文（例: `Symbol("desc")` の `"desc"` 部分）。     |
 
 ## 関数オブジェクト
 ### 種類
@@ -219,9 +351,6 @@ counter()
 | `length`       | 関数が受け取る引数の数を返す（デフォルト値）。                          |
 | `name`         | 関数の名前を返す。匿名関数の場合は空文字列。                             |
 | `prototype`    | 関数がコンストラクタとして使用される際に、新しいオブジェクトに継承されるプロパティを持つ。 |
-| メソッド          |                                                                  |
-| `[[Call]]`    | 関数が呼び出された際の動作を規定する内部メソッド。                        |
-| `[[Construct]]` | `new`キーワードを使用した場合に実行される内部メソッド。                    |
 | prototype定義識別子                |                                                               |
 | `apply`             | 関数を指定した`this`と引数で実行する（`Function.prototype`のメソッド）。 |
 | `bind`              | `this`を固定した新しい関数を返す（`Function.prototype`のメソッド）。     |
@@ -230,11 +359,11 @@ counter()
 | `arguments`         | 呼び出し時の全引数を配列風オブジェクトで保持（非推奨: アロー関数では利用不可、rest parametersの下位互換）。 |
 | `this`              | 呼び出し元に応じて異なる参照先を持つ特別な識別子。                       |
 
-### 特殊なコンストラクタ
-- `String`, `Function`などもJsではコンストラクタ関数扱い
-- `Function`コンストラクタは、常にグローバルスコープを参照する特別スコープ扱い
-
 ### 詳細 / 応用
+#### メソッド(狭義)
+- `[[FunctionKind]]`が`"method"`の関数
+- オブジェクトリテラルかクラスブロック内で、メソッド構文で定義されたもの
+- `super`を使用可能になる
 #### アロー関数
 - 基本的には無名関数の省略形として使われる
 - this, arguments, new, prototype等の関数の予約識別子が使えない
@@ -254,13 +383,106 @@ function fn(cb) {
 fn(callback);
 ```
 
-## Prototype
+## コンストラクタ/Prototype/継承
+### コンストラクタ
+#### 基本仕様
+- `this.prop = `のように、new演算子で呼び出してオブジェクトを作るための処理を書いた関数をコンストラクタという
+- コンストラクタは一般的に最初の文字を大文字で書く
+- インスタンスに共通して持たせたいメソッドを`prototype`に定義することで、共通メソッドとして運用できる
+  - インスタンスのプロパティとしてメソッドを定義してしまうと、メモリのオーバーヘッドを起こす
+#### 特殊なコンストラクタ/ラッパーオブジェクト
+- `String`, `Function`などもJsではコンストラクタ関数扱い
+- `Function`コンストラクタは、常にグローバルスコープを参照する特別スコープ扱い
+- `new プリミティブ型のコンストラクタ`で[ラッパーオブジェクト](#ラッパーオブジェクト)を生成できる
+
+### Prototype/プロトタイプチェーン
+#### 仕様
 - 関数型は特殊プロパティ`prototype`を持つ、この参照先はインスタンス化を行う際、後述の`__proto__`に参照先がコピーされる
 - 全ての値は、特殊プロパティ`__proto__`を持つ、この参照先に定義されているプロパティは、`__proto__`を持つプロパティからも呼び出せる
+- さらに、`__proto__`の`__proto__`等、下の階層のメソッドも参照可能(プロトタイプチェーン)
 - Jsでは`String`等は関数(コンストラクタ)扱い、そして文字列等はコンストラクタ関数`String`からインスタンス化した値扱い
   - つまり `'a'.__proto__ === String.prototype`
-- 非推奨だが、一応再定義可能
 - あくまでコピーするのは参照情報のため、メモリのオーバーヘッドを防げる
+#### super
+- `super()`: プロトタイプチェーン上の同名メソッドを呼び出す
+  - `[[FunctionKind]]`が`'method'`の関数しか呼び出さない
+- `super.prop`: プロトタイプチェーン上のプロパティにアクセスする
+#### 補足/応用
+- コンストラクタから生成してないオブジェクトの`__proto__`は、全部`Object.prototype`
+- 関数の`prototype`の`__proto__`も上記に当たる
+  - 再定義しない限りは、`関数.prototype.__proto__ === Object.prototype`になる
+- `Object.prototype`の`__proto__`は特別に`__proto__: null`のオブジェクトになっている
+  - `Object.prototype === Object.prototype.__proto__`だとループしてしまうから一応当たり前
+- 継承元の`prototype`を`__proto__`に持つオブジェクトを継承先の`prototype`に定義することで、継承先の`prototype`を引継ぎつつ独自の`prototype`を作成出来る
+```js
+B.prototype = Object.create(A.prototype)
+```
+- 継承の基本形
+```js
+function ConstrA(prop1) {
+    this.prop1 = prop1;
+}
+
+function ConstrB(prop1, prop2) {
+    fnA.call(this, prop1);
+    this.prop2 = prop2;
+}
+
+ConstrB.prototype = Object.create(ConstrA.prototype);
+```
+
+### class
+#### 基本仕様
+- コンストラクタのシンタックスシュガーと捉えてほぼ差し支えない
+- `[[FunctionKind]]`が`"classConstructor"`の特殊な関数を定義する記述
+  - `new`演算子以外で呼べなくなる
+  - cunstructor内で使える特別な`super`識別子がある(後述)
+- `class`ブロック内の記述
+```js
+class Constr {
+  // new演算子で呼ばれたときの処理
+  constructor(arg) {
+    this.prop = arg;
+  }
+
+  // getterやsetterを定義
+  get prop() {
+    return this.prop.toLowerCase;
+  }
+
+  // prototypeに定義されるメソッド
+  method() {
+    return 1;
+  }
+
+  // 関数自体に定義されるメソッド(Constr.selfMethodで呼び出せる)
+  static selfMethod() {
+    return 1;
+  }
+}
+```
+#### class継承
+- `extends 継承元`を宣言時に定義して、継承処理を出来る
+  - この時通常の継承と違い`継承先.__proto__ = 継承元`も追加で行う
+- constructor内で`super()`を呼ぶと、`__proto__`の参照先の`[[Construct]]`を引数を渡して実行
+  - この時、`this`を使う前に`super()`を呼び出さないとエラーになる
+- 記述方法
+```js
+// Syntax
+class Child extends Parent {
+  constructor() {
+    super();
+  }
+}
+
+// 以下とほぼ同じ
+function Child() {
+  Parent.call()
+}
+
+Child.__proto__ = Parent; // ここがcunstructorのsuperが使えない通常の継承にはない
+Child.prototype = Object.create(Parent.prototype);
+```
 
 ## 演算子
 ### 基本演算子
@@ -307,6 +529,13 @@ function new(C, ...args) {
 - プリミティブ型も`__proto__`が使えるため、`instanceof`も使用できるが、typeofで書くのが一般的
 - オブジェクト型は当然ながら、typeofは全てObjectになってしまうため、`incetanceof`で判断
 
+#### in, hasOwnProperty
+- プロパティの定義の有無を調べる
+- `in`はプロトタイプチェーンを含む、`hasOwnProperty`は含まない
+- `hasownProperty`は`Object.prototype`に定義されている普通のメソッド
+
+## ループ処理
+### for
 
 
 # Debug
