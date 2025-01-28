@@ -11,3 +11,14 @@ class Person {
 
 const bob = new Person('Bob', 23);
 console.log(bob);
+
+
+function A(prop1) {
+    this.prop1 = prop1;
+}
+A.prototype.hello = function() {
+    console.log('hello');
+}
+
+const aVar = new A(100);
+console.log(aVar);
