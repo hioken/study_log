@@ -42,6 +42,18 @@
  * User: Bob
  * login failed <- loginで失敗した場合
  */
+class User {
+  constructor(name, isAdmin = false) {
+    this.name = name;
+    this.isAdmin = isAdmin;
+  }
+
+  login() { return true }
+
+  checkRoll() { return this.isAdmin }
+
+  redirect() { return true }
+}
 
 function loginController(user) {
   if (user.login()
@@ -52,3 +64,9 @@ function loginController(user) {
     console.log('login failed');
   }
 }
+
+const nonAdmin = new User('Bob');
+const admin = new User('Bob', true);
+
+loginController(nonAdmin);
+loginController(admin);

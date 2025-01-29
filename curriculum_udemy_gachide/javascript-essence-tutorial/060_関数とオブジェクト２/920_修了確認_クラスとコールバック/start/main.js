@@ -20,4 +20,24 @@ class Person {
 }
 
 const bob = new Person('Bob', 23);
-setTimeout(bob.hello, 1000);
+setTimeout(bob.hello.bind(bob), 1000);
+
+
+// class Person {
+//   constructor(name, age) {
+//       this.name = name;
+//       this.age = age;
+//   }
+
+//   hello(delayTime) {
+//     const name = this.name;
+//     if (delayTime) {
+//       setTimeout.call(null, function() {console.log('hello ' + name)}, delayTime)
+//     } else {
+//       console.log('hello ' + name);
+//     }
+//   }
+// }
+
+// const bob = new Person('Bob', 23);
+// bob.hello(1000);

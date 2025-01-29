@@ -24,6 +24,44 @@
  * 	.set(6) -> '42'を出力（10 - 3) * 6
  */
 
+
+class Calculator {
+	constructor() { 
+		this.total = 0;
+	}
+
+	set(nextNum) {
+		if (nextNum) { this.nextNum = nextNum }
+		if (this.operation) {
+			this.operation.call(this)
+			console.log(this.total)
+		} else {
+			this.total = this.nextNum
+		}
+		return this;
+	}
+
+	plus() {
+		this.operation = function() { this.total = this.total + this.nextNum } 
+		return this;
+	}
+
+	minus() {
+		this.operation = function() { this.total = this.total - this.nextNum } 
+		return this;
+	}
+
+	mutiply() {
+		this.operation = function() { this.total = this.total * this.nextNum } 
+		return this;
+	}
+
+	divide() {
+		this.operation = function() { this.total = this.total / this.nextNum } 
+		return this;
+	}
+}
+
 const calc = new Calculator();
 
 calc.set(10)
