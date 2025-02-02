@@ -342,10 +342,7 @@ const upper = (new String('str')).toUpperCase;
 | [[MapData]] / [[SetData]]        | MapやSetが保持するデータの内部リスト（キーや値）。                  |
 |                                  |                                                                     |
 | **Promise**                      | ==========                                                                    |
-| [[PromiseState]]                 | Promiseの状態を表す（`pending` / `fulfilled` / `rejected`）。       |
-| [[PromiseResult]]                | Promiseの解決値や拒否理由を保持。                                   |
-| [[PromiseFulfillReactions]]      | 成功時に実行されるリアクションリスト。                            |
-| [[PromiseRejectReactions]]       | 失敗時に実行されるリアクションリスト。                            |
+| [別ファイル](./sync_async_and_webapis.md)      |                             |
 |                                  |                                                                     |
 | **Generator / Iterator**         | ==========                                                                    |
 | [[GeneratorState]]               | ジェネレータの状態（`suspendedStart` / `executing` など）。         |
