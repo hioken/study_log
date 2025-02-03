@@ -40,6 +40,22 @@
  * 
  */
 
+const events = {
+	beforeInit: new Set,
+	afterInit: new Set,
+	on(timing, fn) {
+		this[timing].add(fn)
+	},
+	off(timing, fn) {
+		this[timing].delete(fn)
+	},
+	emit(timing) {
+		this[timing].forEach((fn) => (
+			fn.call(null)
+		))
+	}
+}
+
 class MyLibrary {
 	constructor() {
 		events.emit('beforeInit');

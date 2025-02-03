@@ -18,3 +18,18 @@
  * 
  * の値が順番にコンソールに表示されます。
  */
+
+function* genStep(min, max, step) {
+  while(min <= max) {
+    yield min
+    min += step
+  }
+}
+
+const it = genStep(4, 10, 2);
+let a = it.next();
+
+while(!a.done) {
+  console.log(a.value);
+  a = it.next();
+}
