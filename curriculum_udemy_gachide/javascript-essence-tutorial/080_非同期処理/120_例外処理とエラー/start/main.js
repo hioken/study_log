@@ -9,3 +9,6 @@
 // }
 
 // fetchUsers();
+
+console.log('a')
+throw 404;
