@@ -27,3 +27,6 @@ fn(callback);
 
 ### Promise
 - Promise.resolve().then(() => {}) ジョブキューにタスクを詰める事になる
+
+### 効率化
+- Promise.all等で、なるべく少ないイベントループで終わらせると処理が早くなる
