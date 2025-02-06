@@ -56,6 +56,27 @@ console.log(globalThis.myValue); // 42
 - オブジェクトリテラルを使う場合、プロパティも文字列にする必要がある
 - シングルクォーテーションが使えない
 
+
+## strictモード
+- onにする条件
+  - スクリプトスコープで`use strict`を記述
+  - モジュールスコープ内
+  - classブロック内
+
+| 項目                     | Strictモード (`"use strict"`) | 非Strictモード (通常のスクリプト) |
+|--------------------------|-----------------------------|------------------------------|
+| 暗黙のグローバル変数    | × `ReferenceError` (`foo = 10;` はエラー) | ○ `window.foo` に登録される |
+| `this` の挙動（グローバル） | × `undefined` | ○ `window`（ブラウザ） |
+| `this` の挙動（関数内） | × `undefined` | ○ `window`（ブラウザ） |
+| `delete` で変数削除      | × `SyntaxError` | ○ `delete obj.prop` はOK |
+| `eval` 内の変数の影響   | × 外部のスコープに影響なし | ○ `eval` 内の変数が外部に影響する |
+| `with` ステートメント    | × `SyntaxError` | ○ 使用可能 |
+| 同じ名前のパラメータ     | × `SyntaxError` (`function(a, a) {}` はエラー) | ○ 許可される |
+| `arguments` の変更      | × 変更不可 (`arguments[0] = 100;` は無効) | ○ 変更可能 |
+| `arguments.callee`      | × `TypeError` | ○ 使用可能 |
+| 予約語の変数名使用      | × `SyntaxError` (`let public = 1;`) | ○ 許可される（※ただし非推奨） |
+
+
 # Basic
 ## Scope
 ### 順序
