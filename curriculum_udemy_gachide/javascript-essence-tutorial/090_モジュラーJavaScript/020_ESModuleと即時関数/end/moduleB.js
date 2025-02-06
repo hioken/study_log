@@ -1,7 +1,5 @@
 import { publicFn as fn, publicVal as val} from './moduleA.js';
+console.log(val)
 fn()
 fn()
-fn()
-console.log(val.prop++)
-console.log(val.prop++)
-fn()
+console.log(val)
