@@ -327,6 +327,49 @@ obj.key = "new value"; // 無視される
 const upper = (new String('str')).toUpperCase;
 ```
 
+#### Proxy / Reflect
+##### Proxy
+- 特定のオブジェクトに対して、crud時の操作等に変更を加えれるようにしたオブジェクト
+- newの第一引数に対象オブジェクト, 第二引数に`handler`オブジェクトを渡す
+- handlerのプロパティ一覧
+
+| プロパティ名          | 対象の操作                          | 説明 |
+|----------------------|--------------------------------|------------------------------|
+| `get`               | `obj.prop`                     | プロパティの取得をトラップする |
+| `set`               | `obj.prop = value`             | プロパティの追加・更新をトラップする |
+| `has`               | `'prop' in obj`                | `in` 演算子の動作をカスタマイズ |
+| `deleteProperty`    | `delete obj.prop`              | プロパティの削除をトラップする |
+| `apply`            | `func(...args)`                | 関数呼び出しをトラップする |
+| `construct`        | `new obj(...args)`             | `new` キーワードの動作をトラップ |
+| `getPrototypeOf`   | `Object.getPrototypeOf(obj)`   | `__proto__` の取得をトラップ |
+| `setPrototypeOf`   | `Object.setPrototypeOf(obj, proto)` | プロトタイプの設定をトラップ |
+| `defineProperty`   | `Object.defineProperty(obj, key, desc)` | プロパティ定義をトラップ |
+| `getOwnPropertyDescriptor` | `Object.getOwnPropertyDescriptor(obj, prop)` | プロパティのディスクリプター取得をトラップ |
+| `ownKeys`          | `Object.keys(obj)` / `Object.getOwnPropertyNames(obj)` / `Object.getOwnPropertySymbols(obj)` | オブジェクトのキー一覧取得をトラップ |
+| `preventExtensions` | `Object.preventExtensions(obj)` | オブジェクトの拡張禁止をトラップ |
+| `isExtensible`     | `Object.isExtensible(obj)`     | オブジェクトが拡張可能かどうかをトラップ |
+
+##### Reflect
+- 内部演算やプロパティに直接アクセスするためのコンストラクタ
+- 過去のObjectメソッドを順次Reflectに移植している
+- 元の演算子やObjectメソッドから、利便性を上げる仕様変更がされている
+
+| 演算子                      | Object メソッド                                   | Reflect メソッド                                 | Reflect の仕様 |
+|----------------------------|-------------------------------------------------|------------------------------------------------|----------------|
+| `obj.prop`                 | なし                                           | `Reflect.get(obj, 'prop', receiver)`            | 例外を投げずに `undefined` を返す |
+| `obj.prop = value`         | なし                                           | `Reflect.set(obj, 'prop', value)`               | 成功時 `true` / 失敗時 `false` を返す |
+| `'prop' in obj`            | なし                                           | `Reflect.has(obj, 'prop')`                      | `in` 演算子の関数版 |
+| `delete obj.prop`          | なし                                           | `Reflect.deleteProperty(obj, 'prop')`           | `delete` 演算子の関数版 |
+| なし                       | `Object.getOwnPropertyDescriptor(obj, prop)`   | `Reflect.getOwnPropertyDescriptor(obj, prop)`   | 例外を投げずに `undefined` を返す |
+| なし                       | `Object.defineProperty(obj, prop, desc)`       | `Reflect.defineProperty(obj, prop, desc)`       | 成功時 `true` / 失敗時 `false` を返す |
+| なし                       | `Object.getPrototypeOf(obj)`                   | `Reflect.getPrototypeOf(obj)`                   | 例外を投げずに `undefined` を返す |
+| なし                       | `Object.setPrototypeOf(obj, proto)`            | `Reflect.setPrototypeOf(obj, proto)`            | 成功時 `true` / 失敗時 `false` を返す |
+| なし                       | `Object.preventExtensions(obj)`                | `Reflect.preventExtensions(obj)`                | 成功時 `true` / 失敗時 `false` を返す |
+| なし                       | `Object.isExtensible(obj)`                     | `Reflect.isExtensible(obj)`                     | `preventExtensions` と対になるAPIとして統一 |
+| なし                       | `Object.keys(obj)`                             | `Reflect.ownKeys(obj)`                          | `Symbol` のキーも含めて取得 |
+| `new Constructor(...args)` | なし                                           | `Reflect.construct(Constructor, [...args])`     | `apply` のように `new` を柔軟に扱える |
+| なし                       | `Function.prototype.apply.call(func, thisArg, argsArray)` | `Reflect.apply(func, thisArg, argsArray)` | `apply` の統一版 |
+
 ### 真偽値(truthy, falsy)
 - falsy
   - `false`
@@ -615,6 +658,8 @@ Child.prototype = Object.create(Parent.prototype);
 ```
 
 ## 演算子
+### ※必須 Reflectとの関連
+- [Reflect](#proxy--reflect)
 ### 基本演算子
 - [優先順位](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Operator_precedence)
 - Jsの演算子では、暗黙的な型変換を行うため注意が必要
@@ -668,6 +713,7 @@ function new(C, ...args) {
 - プロパティの定義の有無を調べる
 - `in`はプロトタイプチェーンを含む、`hasOwnProperty`は含まない
 - `hasownProperty`は`Object.prototype`に定義されている普通のメソッド
+
 
 ## ループ処理
 ### 基礎ループ
