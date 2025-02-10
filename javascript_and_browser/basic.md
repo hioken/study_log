@@ -186,6 +186,11 @@ let obj = {
 // プロパティへのアクセス
 obj.property; obj['property'];
 
+// 定義されている変数を使った省略記法
+// 引数等でも可能
+const name = "Alice";
+const obj = { name }; // { name: "Alice" } と同じ
+
 ```
 - メソッド構文を使うことで、プロトタイプチェーン上で特殊な扱いを受けるメソッド関数を定義出来る
 - ECMAや拡張機能機能から、特殊なオブジェクト型を作成できるFunctionが多く提供されている
@@ -224,6 +229,7 @@ obj.property; obj['property'];
   - `undefined` or `function`
 - `set`: プロパティに対して`=`を行った際の処理
   - `undefined` or `function`
+- getter, setterは内部メソッド`[[get]]`, `[[set]]`の中で呼ばれる
 #### 操作
 - 取得: `Object.getOwnPropertyDescriptor(obj, "prop")`
 - 編集: `Object.defineProperty` or `Object.defineProperties`
@@ -331,6 +337,7 @@ const upper = (new String('str')).toUpperCase;
 ##### Proxy
 - 特定のオブジェクトに対して、crud時の操作等に変更を加えれるようにしたオブジェクト
 - newの第一引数に対象オブジェクト, 第二引数に`handler`オブジェクトを渡す
+- **注意点** `Proxy`からの`getter, setter`で`Reflect`の`getter, setter`メソッドを使う時は`bind`ではなく`get, set`の第三引数(`this`の固定)に`proxy`を指定する
 - handlerのプロパティ一覧
 
 | プロパティ名          | 対象の操作                          | 説明 |
@@ -369,6 +376,14 @@ const upper = (new String('str')).toUpperCase;
 | なし                       | `Object.keys(obj)`                             | `Reflect.ownKeys(obj)`                          | `Symbol` のキーも含めて取得 |
 | `new Constructor(...args)` | なし                                           | `Reflect.construct(Constructor, [...args])`     | `apply` のように `new` を柔軟に扱える |
 | なし                       | `Function.prototype.apply.call(func, thisArg, argsArray)` | `Reflect.apply(func, thisArg, argsArray)` | `apply` の統一版 |
+
+#### WeakMap, WeakSet
+##### 説明
+- キーに対して弱参照
+- 反復不可
+##### 弱参照
+- GCに「内包している値をこのオブジェクトが参照されている」と見なされない
+  - このオブジェクトのみが参照している場合は、メモリから消去される
 
 ### 真偽値(truthy, falsy)
 - falsy
@@ -610,12 +625,17 @@ ConstrB.prototype = Object.create(ConstrA.prototype);
 - メソッドの特殊仕様:
   - 自動でコンストラクタではなく`prototype`に定義
   - デフォルトで`writable`,`enumerable`が`false`
+- `#pravateProp`でプライベート変数が定義可能
 - `class`ブロック内の記述
 ```js
 class Constr {
+  // プライベート変数の宣言(分かりやすいように明示するだけで必須ではない)
+  #pravateProp;
+
   // new演算子で呼ばれたときの処理
-  constructor(arg) {
-    this.prop = arg;
+  constructor(arg1, arg2) {
+    this.prop = arg1;
+    this.#pravateProp = arg2;
   }
 
   // getterやsetterを定義
@@ -800,6 +820,7 @@ function new(C, ...args) {
 | `stack`     | `string`     | スタックトレース（エラー発生箇所を示す） |
 | `cause`     | `any`        | `Error` の原因（オプション, `Error` など） |
 
+# Syntax
 
 # Debug
 ## デバッガの機能
