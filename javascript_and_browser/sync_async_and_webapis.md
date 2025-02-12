@@ -90,6 +90,8 @@ new Promise(function(resolve, reject){
   - `then`の第二引数だけバージョン
 - `finally(data)`メソッド
   - 呼び出し元の`[[PromiseFulfillReactions]]`|`[[PromiseRejectReactions]]`両方に格納
+- `Promise.withResolvers()`メソッド
+  - `new Promise`, `resolve`, `reject`を返し、外部から呼び出せるようにする
 #### 並列処理
 - `Promise.all([PromiseA, PromiseB])`
   - 起点やthenの引数に記述すると、引数の`Promise`が全て解決されるまで、次のPromiseチェーンを待機させる
@@ -97,6 +99,8 @@ new Promise(function(resolve, reject){
   - どれか一つでもエラーが起きた場合、`catch`を実行、引数には最初の`reject`の引数が入る
 - `Promise.race([PromiseA, romiseB])`
   - `all`のどれか一つでも処理が終わったら次が実行されるバージョン
+- `Promise.any([PromiseA, romiseB])`
+  - `all`のどれか一つでも成功したら次が実行されるバージョン
 - `Promise.allsettled([PromiseA, romiseB])`
   - 全ての処理を待ち、`reject`が起きてもエラー扱いせず次の処理を実行(`catch`を実行しない)
   - 引数には、前回の処理の戻り値と状態を格納したオブジェクト`{reason: 戻り値, status: [[PromiseState]]の値}`が格納された配列が入る
