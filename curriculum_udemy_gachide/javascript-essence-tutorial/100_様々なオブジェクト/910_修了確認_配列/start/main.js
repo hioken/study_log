@@ -19,6 +19,45 @@ class MyArray extends Array {
 		console.log(`%c ${label}`, 'color: blue; font-weight: 600;', this);
 		return this;
 	}
+
+	push(...values) {
+		this.splice(this.length, values.length, ...values);
+		return this;
+	}
+
+	forEach(cb) {
+		for(const key in this) {
+			cb.call(null, this[key], key, this);
+		}
+		return this;
+	}
+
+	map(cb) {
+		for(const key in this) {
+			const res = cb.call(null, this[key], key, this);
+			this.splice(key, 1, res);
+		}
+		return this;
+	}
+
+	filter(cb) {
+		for(const key in this) {
+			if (!(cb.call(null, this[key], key, this))) {
+				this.splice(key, 1);
+			}
+		}
+		return this;
+	}
+
+	reduce(cb, defo) {
+		let tmpThis = [...this];
+		let acc = defo;
+		if(defo === undefined) { acc = tmpThis.splice(0, 1)[0] }
+		for(const key in tmpThis) {
+			acc = cb.call(null, acc, tmpThis[key]);
+		}
+		return acc;
+	}
 }
 
 function double(v, i, obj) {

@@ -21,11 +21,46 @@ class IteratableObject {
 		}
 	}
 
+	*[Symbol.iterator]() {
+		for (const key in this) {
+			yield [key, this[key]]
+		}
+	}
+
 	print(label = '') {
 		console.log(`%c ${label}`, 'color: blue; font-weight: 600;', this);
 		return this;
 	}
 
+	set(key, value) {
+		this[key] = value;
+		return this;
+	}
+
+	forEach(cb) {
+		for (const key in this) {
+			cb.call(this, this[key])
+		}
+	}
+
+  map(callback) {
+    const newInstance = new MyArray();
+    for (let i = 0; i < this.length; i++) {
+      const result = callback(this[i], i, this);
+      newInstance.push(result);
+    }
+    return newInstance;
+  }
+
+  filter(callback) {
+    const newInstance = new MyArray();
+    for (let i = 0; i < this.length; i++) {
+      if (callback(this[i], i, this)) {
+        newInstance.push(this[i]);
+      }
+    }
+    return newInstance;
+  }
 }
 
 function prefix(v, i, obj) {
