@@ -50,8 +50,11 @@ globalThis.myValue = 42;
 console.log(globalThis.myValue); // 42
 ```
 
-## json
-- 他言語やサーバーとやり取りする時に使うオブジェクト
+## フォーマット
+### 説明
+- 他言語やサーバーとやり取りする時に使うフォーマット
+- 普段は文字列として振舞い、jsで簡単にオブジェクトに変換できる
+### json
 - 配列やオブジェクトリテラルが使える
 - オブジェクトリテラルを使う場合、プロパティも文字列にする必要がある
 - シングルクォーテーションが使えない
@@ -264,43 +267,43 @@ obj.key = "new value"; // 無視される
 - `Object.prototype`を継承していない
 - メソッド
 
-| メソッド名   | 引数                     | 説明                                           |
-|-------------|-------------------------|-----------------------------------------------|
-| set         | キー, 値                 | 指定したキーに対応する値を設定               |
-| get         | キー                     | 指定したキーに対応する値を取得               |
-| has         | キー                     | 指定したキーが存在するかを確認               |
-| delete      | キー                     | 指定したキーのエントリーを削除               |
-| clear       | なし                      | すべてのエントリーを削除                     |
-| size        | なし                      | エントリーの数を取得                         |
-| keys        | なし                      | すべてのキーを `Iterator` で返す             |
-| values      | なし                      | すべての値を `Iterator` で返す               |
-| entries     | なし                      | `[キー, 値]` のペアを `Iterator` で返す       |
-| forEach     | コールバック関数           | 各エントリーに対してコールバック関数を実行   |
+| **メソッド名** | **引数**                 | **戻り値**                  | **説明** |
+|--------------|---------------------|----------------------|---------|
+| `set`        | `キー, 値`           | `Mapオブジェクト`    | 指定したキーに対応する値を設定 |
+| `get`        | `キー`               | `値` または `undefined` | 指定したキーに対応する値を取得 |
+| `has`        | `キー`               | `true` または `false` | 指定したキーが存在するかを確認 |
+| `delete`     | `キー`               | `true` または `false` | 指定したキーのエントリーを削除 |
+| `clear`      | `なし`               | `なし`               | すべてのエントリーを削除 |
+| `size`       | `なし`               | `エントリーの数`      | エントリーの数を取得 |
+| `keys`       | `なし`               | `Iterator`           | すべてのキーを `Iterator` で返す |
+| `values`     | `なし`               | `Iterator`           | すべての値を `Iterator` で返す |
+| `entries`    | `なし`               | `Iterator`           | `[キー, 値]` のペアを `Iterator` で返す |
 
 #### 配列(Array)
 - `[v1, v2]`リテラルを持ち、それをそれぞれ0~nの**プロパティとして**保存できるオブジェクト
+- `length`プロパティの値を弄る事で、配列のサイズを変えれる(減らす場合は後ろから削除される)
 - スプレッド構文`...`で展開可能
 - メソッド
 
-| **メソッド名**        | **引数**                         | **説明** |
-|----------------------|--------------------------------|---------|
-| `push` \| `unshift`  | `要素`                         | 配列の末尾 \| 先頭 に要素を追加 |
-| `pop` \| `shift`     | `なし`                         | 配列の末尾 \| 先頭 から要素を削除し、その値を返す |
-| `includes`          | `要素`                         | 指定した要素が配列に含まれるかを確認 |
-| `indexOf` \| `lastIndexOf` | `要素, 開始位置（省略可）` | 指定した要素の最初 \| 最後 のインデックスを返す |
-| `splice`           | `開始位置, 削除数, 追加要素`    | 配列を変更し、削除した要素を返す |
-| `slice`            | `開始位置, 終了位置`           | 配列の一部を抽出して新しい配列を返す |
-| `concat`           | `配列`                         | 配列を結合して新しい配列を返す |
-| `forEach`          | `コールバック関数`             | 各要素に対してコールバック関数を実行 |
-| `map`              | `コールバック関数`             | 各要素を変換した新しい配列を生成 |
-| `filter`           | `コールバック関数`             | 条件に一致する要素を抽出して新しい配列を生成 |
-| `find` \| `findIndex` | `コールバック関数`          | 条件に一致する最初の要素 \| そのインデックス を返す |
-| `reduce`           | `コールバック関数, 初期値`     | 要素を集約して単一の値を生成 |
-| `sort`             | `比較関数（省略可）`          | 配列を並べ替える |
-| `reverse`          | `なし`                         | 配列の要素を反転 |
-| `flat`             | `階層の深さ（省略可）`         | 配列をフラット化 |
-| `join`             | `区切り文字（省略可）`         | 配列を文字列に変換して返す |
-| `toString`         | `なし`                         | 配列をカンマ区切りの文字列に変換 |
+| **メソッド名**        | **引数**                         | **戻り値**                                  | **説明** |
+|----------------------|--------------------------------|--------------------------------|---------|
+| `push` \| `unshift`  | `要素`                         | `新しい配列の長さ`            | 配列の末尾 \| 先頭 に要素を追加 |
+| `pop` \| `shift`     | `なし`                         | `削除された要素`              | 配列の末尾 \| 先頭 から要素を削除し、その値を返す |
+| `includes`          | `要素`                         | `true` または `false`         | 指定した要素が配列に含まれるかを確認 |
+| `indexOf` \| `lastIndexOf` | `要素, 開始位置（省略可）` | `インデックス` または `-1`    | 指定した要素の最初 \| 最後 のインデックスを返す |
+| `splice`           | `開始位置, 削除数, 追加要素`    | `削除された要素の配列`        | 配列を変更し、削除した要素を返す |
+| `slice`            | `開始位置, 終了位置`           | `新しい配列`                  | 配列の一部を抽出して新しい配列を返す |
+| `concat`           | `配列`                         | `新しい配列`                  | 配列を結合して新しい配列を返す |
+| `forEach`          | `コールバック関数`             | `なし`                         | 各要素に対してコールバック関数を実行 |
+| `map`              | `コールバック関数`             | `新しい配列`                  | 各要素を変換した新しい配列を生成 |
+| `filter`           | `コールバック関数`             | `新しい配列`                  | 条件に一致する要素を抽出して新しい配列を生成 |
+| `find` \| `findIndex` | `コールバック関数`          | `要素` または `インデックス` または `-1` | 条件に一致する最初の要素 \| そのインデックス を返す |
+| `reduce`           | `コールバック関数, 初期値`     | `単一の値`                     | 要素を集約して単一の値を生成 |
+| `sort`             | `比較関数（省略可）`          | `ソート後の配列`               | 配列を並べ替える |
+| `reverse`          | `なし`                         | `反転後の配列`                 | 配列の要素を反転 |
+| `flat`             | `階層の深さ（省略可）`         | `フラット化した配列`           | 配列をフラット化 |
+| `join`             | `区切り文字（省略可）`         | `文字列`                       | 配列を文字列に変換して返す |
+| `toString`         | `なし`                         | `文字列`                       | 配列をカンマ区切りの文字列に変換 |
 
 #### セット(Set)
 - 重複した値を許可しない
@@ -309,18 +312,16 @@ obj.key = "new value"; // 無視される
 - `Object.prototype`を継承していない
 - メソッド
 
-| メソッド名   | 引数                     | 説明                                           |
-|-------------|-------------------------|-----------------------------------------------|
-| add         | 値                       | 指定した値をセットに追加                     |
-| has         | 値                       | 指定した値がセット内に存在するかを確認       |
-| delete      | 値                       | 指定した値をセットから削除                   |
-| clear       | なし                      | すべての要素を削除                           |
-| size        | なし                      | セットの要素数を取得                         |
-| keys        | なし                      | 値の `Iterator` を返す（`values()` と同じ動作）|
-| values      | なし                      | すべての値を `Iterator` で返す               |
-| entries     | なし                      | `[値, 値]` のペアを `Iterator` で返す        |
-| forEach     | コールバック関数           | 各要素に対してコールバック関数を実行         |
-
+| **メソッド名** | **引数**               | **戻り値**                  | **説明** |
+|--------------|-----------------|----------------------|---------|
+| `add`        | `値`             | `Setオブジェクト`    | 指定した値をセットに追加 |
+| `has`        | `値`             | `true` または `false` | 指定した値がセット内に存在するかを確認 |
+| `delete`     | `値`             | `true` または `false` | 指定した値をセットから削除 |
+| `clear`      | `なし`           | `なし`               | すべての要素を削除 |
+| `size`       | `なし`           | `セットの要素数`     | セットの要素数を取得 |
+| `keys`       | `なし`           | `Iterator`           | 値の `Iterator` を返す（`values()` と同じ動作） |
+| `values`     | `なし`           | `Iterator`           | すべての値を `Iterator` で返す |
+| `entries`    | `なし`           | `Iterator`           | `[値, 値]` のペアを `Iterator` で返す |
 
 ### 派生オブジェクト2
 #### 関数(Function)
@@ -333,8 +334,7 @@ obj.key = "new value"; // 無視される
 const upper = (new String('str')).toUpperCase;
 ```
 
-#### Proxy / Reflect
-##### Proxy
+#### Proxy
 - 特定のオブジェクトに対して、crud時の操作等に変更を加えれるようにしたオブジェクト
 - newの第一引数に対象オブジェクト, 第二引数に`handler`オブジェクトを渡す
 - **注意点** `Proxy`からの`getter, setter`で`Reflect`の`getter, setter`メソッドを使う時は`bind`ではなく`get, set`の第三引数(`this`の固定)に`proxy`を指定する
@@ -355,27 +355,6 @@ const upper = (new String('str')).toUpperCase;
 | `ownKeys`          | `Object.keys(obj)` / `Object.getOwnPropertyNames(obj)` / `Object.getOwnPropertySymbols(obj)` | オブジェクトのキー一覧取得をトラップ |
 | `preventExtensions` | `Object.preventExtensions(obj)` | オブジェクトの拡張禁止をトラップ |
 | `isExtensible`     | `Object.isExtensible(obj)`     | オブジェクトが拡張可能かどうかをトラップ |
-
-##### Reflect
-- 内部演算やプロパティに直接アクセスするためのコンストラクタ
-- 過去のObjectメソッドを順次Reflectに移植している
-- 元の演算子やObjectメソッドから、利便性を上げる仕様変更がされている
-
-| 演算子                      | Object メソッド                                   | Reflect メソッド                                 | Reflect の仕様 |
-|----------------------------|-------------------------------------------------|------------------------------------------------|----------------|
-| `obj.prop`                 | なし                                           | `Reflect.get(obj, 'prop', receiver)`            | 例外を投げずに `undefined` を返す |
-| `obj.prop = value`         | なし                                           | `Reflect.set(obj, 'prop', value)`               | 成功時 `true` / 失敗時 `false` を返す |
-| `'prop' in obj`            | なし                                           | `Reflect.has(obj, 'prop')`                      | `in` 演算子の関数版 |
-| `delete obj.prop`          | なし                                           | `Reflect.deleteProperty(obj, 'prop')`           | `delete` 演算子の関数版 |
-| なし                       | `Object.getOwnPropertyDescriptor(obj, prop)`   | `Reflect.getOwnPropertyDescriptor(obj, prop)`   | 例外を投げずに `undefined` を返す |
-| なし                       | `Object.defineProperty(obj, prop, desc)`       | `Reflect.defineProperty(obj, prop, desc)`       | 成功時 `true` / 失敗時 `false` を返す |
-| なし                       | `Object.getPrototypeOf(obj)`                   | `Reflect.getPrototypeOf(obj)`                   | 例外を投げずに `undefined` を返す |
-| なし                       | `Object.setPrototypeOf(obj, proto)`            | `Reflect.setPrototypeOf(obj, proto)`            | 成功時 `true` / 失敗時 `false` を返す |
-| なし                       | `Object.preventExtensions(obj)`                | `Reflect.preventExtensions(obj)`                | 成功時 `true` / 失敗時 `false` を返す |
-| なし                       | `Object.isExtensible(obj)`                     | `Reflect.isExtensible(obj)`                     | `preventExtensions` と対になるAPIとして統一 |
-| なし                       | `Object.keys(obj)`                             | `Reflect.ownKeys(obj)`                          | `Symbol` のキーも含めて取得 |
-| `new Constructor(...args)` | なし                                           | `Reflect.construct(Constructor, [...args])`     | `apply` のように `new` を柔軟に扱える |
-| なし                       | `Function.prototype.apply.call(func, thisArg, argsArray)` | `Reflect.apply(func, thisArg, argsArray)` | `apply` の統一版 |
 
 #### WeakMap, WeakSet
 ##### 説明
@@ -442,6 +421,57 @@ const upper = (new String('str')).toUpperCase;
  [[BooleanData]]             | Boolean オブジェクトが保持する真偽値データ。                       |
  [[NumberData]]              | Number オブジェクトが保持する数値データ。                          |
  [[Description]]             | Symbol が持つ説明文（例: `Symbol("desc")` の `"desc"` 部分）。     |
+
+## Global Utility Objects(NamespaceObjects)
+### 説明
+- 名称は公式ではない
+- 様々な静的メソッドが用意されている
+
+### 一覧
+| 名前           | 説明 |
+|--------------|--------------------------------|
+| `JSON`       | JSON のパース・文字列化を提供 |
+| `Math`       | 数学関連のメソッド群 |
+| `Atomics`    | `SharedArrayBuffer` の同期処理 |
+| `Reflect`    | オブジェクトのメタプログラミング |
+| `Intl`       | 国際化（ロケール・日付・通貨）API |
+| `WebAssembly` | WebAssembly の API |
+
+### 詳細
+#### Reflect
+- 過去のObjectメソッドを順次Reflectに移植している
+- 元の演算子やObjectメソッドから、利便性を上げる仕様変更がされている
+
+| 演算子                      | Object メソッド                                   | Reflect メソッド                                 | Reflect の仕様 |
+|----------------------------|-------------------------------------------------|------------------------------------------------|----------------|
+| `obj.prop`                 | なし                                           | `Reflect.get(obj, 'prop', receiver)`            | 例外を投げずに `undefined` を返す |
+| `obj.prop = value`         | なし                                           | `Reflect.set(obj, 'prop', value)`               | 成功時 `true` / 失敗時 `false` を返す |
+| `'prop' in obj`            | なし                                           | `Reflect.has(obj, 'prop')`                      | `in` 演算子の関数版 |
+| `delete obj.prop`          | なし                                           | `Reflect.deleteProperty(obj, 'prop')`           | `delete` 演算子の関数版 |
+| なし                       | `Object.getOwnPropertyDescriptor(obj, prop)`   | `Reflect.getOwnPropertyDescriptor(obj, prop)`   | 例外を投げずに `undefined` を返す |
+| なし                       | `Object.defineProperty(obj, prop, desc)`       | `Reflect.defineProperty(obj, prop, desc)`       | 成功時 `true` / 失敗時 `false` を返す |
+| なし                       | `Object.getPrototypeOf(obj)`                   | `Reflect.getPrototypeOf(obj)`                   | 例外を投げずに `undefined` を返す |
+| なし                       | `Object.setPrototypeOf(obj, proto)`            | `Reflect.setPrototypeOf(obj, proto)`            | 成功時 `true` / 失敗時 `false` を返す |
+| なし                       | `Object.preventExtensions(obj)`                | `Reflect.preventExtensions(obj)`                | 成功時 `true` / 失敗時 `false` を返す |
+| なし                       | `Object.isExtensible(obj)`                     | `Reflect.isExtensible(obj)`                     | `preventExtensions` と対になるAPIとして統一 |
+| なし                       | `Object.keys(obj)`                             | `Reflect.ownKeys(obj)`                          | `Symbol` のキーも含めて取得 |
+| `new Constructor(...args)` | なし                                           | `Reflect.construct(Constructor, [...args])`     | `apply` のように `new` を柔軟に扱える |
+| なし                       | `Function.prototype.apply.call(func, thisArg, argsArray)` | `Reflect.apply(func, thisArg, argsArray)` | `apply` の統一版 |
+
+#### JSON
+- `JSON`の取り扱い(Object or String)を切り替える
+- `replacer`関数(`(key, value) => {}`): 変換方法の指定
+  - `value`を返すと、その`undefined`を返すとそのプロパティを無視する
+  - 基本`Object.entries().map()`の引数と同じと考えていいが、ネストされている中にも適応されるため、こっちの方が融通が利く
+- `.perse`: String → Object
+  - 第二引数: `replacer`関数(省略可能)
+- `.stringify`: Object → String
+  - 第二引数:
+    1. 変換するプロパティを指定
+    2. `replacer`関数
+    3. 省略した場合は全`enumeble`プロパティが対象
+  - 第三引数: インデントのスペース、省略した場合は改行なし
+
 
 ## 関数オブジェクト
 ### 種類
@@ -679,7 +709,7 @@ Child.prototype = Object.create(Parent.prototype);
 
 ## 演算子
 ### ※必須 Reflectとの関連
-- [Reflect](#proxy--reflect)
+- [Reflect](#reflect)
 ### 基本演算子
 - [優先順位](https://developer.mozilla.org/ja/docs/Web/JavaScript/Reference/Operators/Operator_precedence)
 - Jsの演算子では、暗黙的な型変換を行うため注意が必要
@@ -733,6 +763,8 @@ function new(C, ...args) {
 - プロパティの定義の有無を調べる
 - `in`はプロトタイプチェーンを含む、`hasOwnProperty`は含まない
 - `hasownProperty`は`Object.prototype`に定義されている普通のメソッド
+
+
 
 
 ## ループ処理
