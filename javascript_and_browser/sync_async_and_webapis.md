@@ -216,12 +216,19 @@ new Promise((resolve) => { resolve() }).then(function() {
 | **`arrayBuffer()`**  | `body` を `ArrayBuffer` として取得（`Promise<ArrayBuffer>`） |
 | **`clone()`**  | `Response` を複製（`body` は再利用不可なのでコピーする必要あり） |
 
-#### jsonの取得例
+#### jsonの取得例とテストコード
 ```js
+// jsonの取得例
 async function fetchFn() {
   const response = await fetch('接続先')
   const json = await response.json()
 }
+
+// テストコード
+fetch("https://jsonplaceholder.typicode.com/posts/1")
+  .then(response => response.json())
+  .then(data => console.log(data))
+  .catch(error => console.error("Error:", error));
 ```
 
 # WebAPIs
@@ -400,6 +407,29 @@ async function fetchFn() {
 | `event.stopPropagation()` | **親要素への伝播（バブリング）を止める** |
 | `event.stopImmediatePropagation()` | **他のリスナーの実行も含めて止める** |
 | `event.composedPath()` | **イベントの伝播経路を配列で取得** |
+
+### 補足
+#### イベントデリゲーション
+- イベントリスナーの重複定義を防ぐアプローチ
+- 同じイベントはなるべく親要素にまとめる
+```js
+// 条件分岐を工夫
+document.addEventListener("click", event => {
+  if (event.target.matches(".delete-btn")) {
+    console.log("削除ボタンが押された！");
+  } else if (event.target.matches(".edit-btn")) {
+    console.log("編集ボタンが押された！");
+  }
+});
+
+// closestで親要素を絞る
+document.addEventListener("click", event => {
+  const button = event.target.closest(".delete-btn");
+  if (button) {
+    console.log("削除ボタンが押された！");
+  }
+});
+```
 
 
 
