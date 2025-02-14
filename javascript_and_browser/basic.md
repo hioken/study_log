@@ -140,18 +140,53 @@ let {prop} = obj;
 | シンボル型 (Symbol)| Symbol('id')                      | ユニークな識別子を生成するための型。主にオブジェクトのプロパティキーとして利用。                 |
 | ビッグイント型 (BigInt) | 123n, BigInt(123)                | 任意の大きさの整数を表す型。`n`を末尾に付けることで表現。                                       |
 
-#### シンボル
-- 一意の値を返すデータ
-- `Symbol()`の戻り値
-- 引数で名前付けを行うことが出来る
-  - この際、名前が重複していても実際の値は違うため、あくまでラベル付けというだけ
-
 #### 基本仕様
 - プリミティブ型に対して、[ラッパーオブジェクト](#ラッパーオブジェクト)のメソッドを実行すると、以下のロジックで処理が行われる
 1. ラッパーオブジェクトを生成
 2. ラッパーオブジェクトから指定のメソッドが呼び出す
 3. 呼び出しに成功した場合は戻り値、失敗した場合は`undefined`を返す
 4. ラッパーオブジェクトを破棄
+
+#### メソッド
+| データ型 | メソッド名 | 引数 | 戻り値 | 説明 |
+|----------|------------|------|--------|------|
+| **String** | `slice` | (`start`, `end`) | 指定範囲の文字列 | `start` から `end` の手前までを取得 |
+|          | `substring` | (`start`, `end`) | 指定範囲の文字列 | `start` > `end` の場合は自動で入れ替え |
+|          | `substr` | (`start`, `length`) | 指定範囲の文字列 | `start` から `length` 文字を取得（非推奨） |
+|          | `replace` | (`pattern`, `replacement`) | 置換後の文字列 | `pattern` にマッチした部分を `replacement` に置換 |
+|          | `replaceAll` | (`pattern`, `replacement`) | 置換後の文字列 | `pattern` にマッチするすべての部分を `replacement` に置換 |
+|          | `toUpperCase` | なし | 大文字に変換した文字列 | すべての文字を大文字に変換 |
+|          | `toLowerCase` | なし | 小文字に変換した文字列 | すべての文字を小文字に変換 |
+|          | `trim` | なし | 前後の空白を除去した文字列 | 前後のスペースを削除 |
+|          | `trimStart` | なし | 先頭の空白を除去した文字列 | `trimLeft` のエイリアス |
+|          | `trimEnd` | なし | 末尾の空白を除去した文字列 | `trimRight` のエイリアス |
+|          | `charAt` | (`index`) | 指定位置の1文字 | `index` 位置の文字を取得 |
+|          | `charCodeAt` | (`index`) | 指定位置のUnicode値 | `index` 位置の文字の Unicode コードを返す |
+|          | `includes` | (`searchString`, `position`) | `true` or `false` | `searchString` が含まれるか判定 |
+|          | `startsWith` | (`searchString`, `position`) | `true` or `false` | `searchString` で始まるか判定 |
+|          | `endsWith` | (`searchString`, `length`) | `true` or `false` | `searchString` で終わるか判定 |
+|          | `repeat` | (`count`) | 繰り返した文字列 | `count` 回繰り返す |
+|          | `split` | (`separator`, `limit`) | 配列 | `separator` で分割し、配列で返す |
+|          | `padStart` | (`targetLength`, `padString`) | 埋めた文字列 | `targetLength` に達するまで `padString` で埋める |
+|          | `padEnd` | (`targetLength`, `padString`) | 埋めた文字列 | `targetLength` に達するまで `padString` で埋める |
+| **Number** | `toFixed` | (`digits`) | 文字列 | 小数点以下 `digits` 桁で丸めた文字列を返す |
+|          | `toExponential` | (`digits`) | 文字列 | 指定した桁数で指数表記に変換 |
+|          | `toPrecision` | (`precision`) | 文字列 | 指定した精度で丸めた文字列を返す |
+|          | `toString` | (`radix`) | 文字列 | 指定した進数の文字列を返す |
+|          | `valueOf` | なし | 数値 | 数値をそのまま返す |
+| **Boolean** | `toString` | なし | 文字列 | `"true"` または `"false"` を返す |
+|          | `valueOf` | なし | 真偽値 | `true` または `false` をそのまま返す |
+| **BigInt** | `toString` | (`radix`) | 文字列 | 指定した進数の文字列を返す |
+|          | `valueOf` | なし | `BigInt` | `BigInt` をそのまま返す |
+| **Symbol** | `toString` | なし | 文字列 | `Symbol` を文字列として表現 |
+|          | `valueOf` | なし | `Symbol` | `Symbol` をそのまま返す |
+|          | `description` | なし | 文字列または `undefined` | `Symbol("desc")` の `"desc"` を取得 |
+
+#### シンボル
+- 一意の値を返すデータ
+- `Symbol()`の戻り値
+- 引数で名前付けを行うことが出来る
+  - この際、名前が重複していても実際の値は違うため、あくまでラベル付けというだけ
 
 ### オブジェクト型基礎
 #### 派生一覧
