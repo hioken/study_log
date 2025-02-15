@@ -1,3 +1,49 @@
+# エラーハンドリング
+## try文にエラーを投げる条件を書いておく
+```js
+try {
+  const response = await fetch("");
+  if (!response.ok) {
+    throw new Error();
+  }
+} catch(e) {
+  console.error("error: ", e)
+}
+
+// タイムアウト二も対応
+async function fetchWithTimeout(url, timeout = 5000) {
+  const controller = new AbortController();
+  const signal = controller.signal;
+  const timeoutId = setTimeout(() => controller.abort(), timeout);
+
+  try {
+    // ❶ fetch処理
+    const response = await fetch(url, { signal });
+
+    // ❷ タイムアウトをクリア（fetchが成功したら）
+    clearTimeout(timeoutId);
+
+    // ❸ response.okをチェック
+    if (!response.ok) {
+      throw new Error(`HTTPエラー: ${response.status}`);
+    }
+
+    return await response.json();
+  } catch (error) {
+    // ❹ fetchエラー or タイムアウトエラーをキャッチ
+    console.error("エラー:", error);
+    throw error;
+  }
+}
+
+fetchWithTimeout("https://jsonplaceholder.typicode.com/todos/1", 3000)
+  .then(data => console.log("成功:", data))
+  .catch(error => console.error("最終エラー処理:", error));
+
+```
+
+
+# 記述テクニック
 ## 命名規則
 - `_prop`: _から始まるプロパティはプライベート変数として扱って欲しいというアピール
 ## 基礎
@@ -37,8 +83,6 @@ export class Person {
     }
 }
 ```
-
-
 
 ## データ管理
 ### MapとSetの合わせ技

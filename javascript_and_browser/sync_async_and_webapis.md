@@ -28,6 +28,11 @@
 | **WebAPI**        | -                | Macro      | `requestAnimationFrame()` | 次の描画フレームのタイミングで処理を実行 |
 | **Node**         | `Process`        | Micro      | `process.nextTick()`    | 次のイベントループの直前に実行 |
 
+## setTimeout
+- `Timers API`が提供する非同期関数
+- `setTimeout(callback, time)`: callbackがtime/ms後にタスクキューに移動する
+- タスクは`timeoutId`を持っており、戻り値としてこの`Number型`のidを返す(通常は1から順につけられていく)
+- `clearTimeout(timeoutId)`関数の引数に`timeoutId`を渡すと、そのidのタスクが取り消される
 
 ## Promise
 ### 基本
@@ -178,15 +183,18 @@ new Promise((resolve) => { resolve() }).then(function() {
     });
   });
 });
-
-
 ```
 
+## HTTP
 ### Fetch
 #### 説明
-- `fetch(url, options = null)`は`Web APIs`に定義されている、通常の`Function`コンストラクタのインスタンス
+- `fetch(url, options = null)`は`Fetch API`に定義されている、通常の`Function`コンストラクタのインスタンス
   - 取得情報を`resolve`の引数として返す`Promise`を返す。
   - `resolve`の引数には`Response`インスタンスのオブジェクトが返る
+- 同期処理以外の部分は`Web APIスレッド`で実行される
+- `fetch()`にはデフォルトのタイムアウト処理がない
+  - `DOM API`の[AbortController](#abortcontroller)を使って管理するのが一般的
+- `options`の`body`が`FormData`オブジェクトだと`Content-Type`が`maltipart/form-data`になる
 
 #### options
 | プロパティ       | 値                                       | デフォルト       | 説明                                   |
@@ -201,7 +209,6 @@ new Promise((resolve) => { resolve() }).then(function() {
 | `referrer`  | `""`, `"no-referrer"`, `"client"`    | `"client"`    | 送信する `Referer` ヘッダーの値       |
 | `keepalive` | `true`, `false`                      | `false`       | ページ移動後もリクエストを継続するか    |
 | `signal`    | `AbortSignal`                        | `undefined`   | リクエストの中断に使う `AbortController` |
-
 
 #### Responseインスタンス
 | プロパティ / メソッド | 説明 |
@@ -231,6 +238,24 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
   .catch(error => console.error("Error:", error));
 ```
 
+### HTTP用オブジェクト
+#### FormData
+- `XHR API`(`XMLHttpRequest`)が提供
+- fileデータを値に設定可能
+#### URLSearchParams
+- `URL API` (`WHATWG URL`)が提供
+- `toString()`時にパラメーターの形に変換される
+#### 共通メソッド
+| **メソッド名**      | **引数**                          | **戻り値**    | **説明** |
+|------------------|--------------------------------|-----------|---------|
+| `append()`      | `key: string`, `value: any`    | `void`    | データを追加 |
+| `get()`/`getAll()`         | `key: string`                  | `any`/`any[]`     | 指定した キー/キー全て の値を取得 |
+| `set()`         | `key: string`, `value: any`    | `void`    | 指定キーの値を上書き |
+| `delete()`      | `key: string`                  | `void`    | 指定キーのデータを削除 |
+| `has()`         | `key: string`                  | `boolean` | 指定キーが存在するかチェック |
+| `entries()`     | なし                            | `Iterator<[string, any]>` | `[key, value]` のペアを反復処理可能にする |
+| `keys()`/`values()`        | なし                            | `Iterator<string>`/`Iterator<any>` | すべての キー/値 を反復処理可能にする |
+
 # WebAPIs
 ## レンダリング処理時に作成される要素
 
@@ -243,6 +268,39 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
 | **レイアウトキャッシュ** | レイアウト計算後                   | 要素の `offsetWidth` などの情報を保存 | 要素のサイズや位置を取得する時 |
 | **イベントリスナーリスト** | `addEventListener()` 実行時         | 要素ごとに登録されたイベントを管理      | イベントリスナーを追加・削除する時 |
 | **アニメーションキャッシュ** | `transform` や `opacity` 変更時   | GPU最適化のためのデータを管理         | アニメーションや変形を適用する時 |
+
+## AbortController
+### 説明
+- `DOM API`が提供するモジュール
+- 処理の取り消しを行う目的で利用される
+- `new AbortController()`によりcontrollerを設定
+  - このcontrollerは`signal`というプロパティを持ち、中に`AbortSignal`クラスのインスタンスを持つ
+  - このcontrollerから`abort()`を呼び出すと、`signal`プロパティの値の`aborted`プロパティが`true`になる
+  - 非同期関数の引数に`{ signal: AbortSignalインスタンス }`を渡すと、関数が自身の`signal`プロパティの参照先の`aborted`プロパティを監視
+    - `aborted: true`を確認した監視対象の動作は、対象の関数の定義による(未定義の場合は無視される)
+- **監視対象が大量に要る場合、abort()の処理が重くなるため、不要なabort()を防ぐハンドリングは必須**
+- 重複abortを阻止するため、なるべく`if (!signal.aborted)`のチェックを入れたい
+- 説明
+```js
+const controller = new AbortController(); // コントローラを作成
+const signal = controller.signal; // シグナルを取得
+fetch(url, { signal }); // fetchはcontrollerを監視
+setTimeout(() => controller.abort(), 10000); // リクエストを中断する
+```
+### 対応API
+- 基本は最後の引数にsignal持ちオブジェクトを渡すようになっている
+
+| **提供 API**             | **関数名**                      | **`aborted: true` の処理** |
+|--------------------------|--------------------------------|--------------------------|
+| **Fetch API**           | `fetch(url, { signal })`       | `Promise.reject()` を発生させる |
+| **EventTarget API**     | `addEventListener(type, cb, { signal })` | 該当リスナーを削除する |
+| **Streams API**         | `ReadableStream.cancel(signal)` | ストリームの読み込みを中断する |
+| **WebSockets API**      | `WebSocket.close()`（手動実装） | `abort()` を検知して手動で `close()` を呼ぶ |
+| **setTimeout API**      | `setTimeout(cb, delay)`（手動実装） | `abort()` を検知して `clearTimeout()` を呼ぶ |
+| **setInterval API**     | `setInterval(cb, delay)`（手動実装） | `abort()` を検知して `clearInterval()` を呼ぶ |
+
+### 自作関数をAbortSignalに対応させる
+- 必要になったらその時調べてくれ
 
 ## DOM
 ### オブジェクト
