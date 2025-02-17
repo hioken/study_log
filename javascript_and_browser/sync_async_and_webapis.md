@@ -1,4 +1,4 @@
-# 非同期(async)
+# 非同期
 ## 基礎
 ### Jsにおける非同期処理とその他基礎知識
 - 非同期処理: ある処理をジョブシステムに入れておいて、先にコールスタック内の他の処理終らせてからコールスタックに入れる仕組み
@@ -137,6 +137,8 @@ asyncFn()
 - `await fn(val)`:
   - `内部スロットの保持Promise.then(fn)`と同じほぼ動作
   - 戻り値は、`fn`内の`resolve`の引数
+- 例外処理は通常のtry, catchをする仕様
+  - `reject`すると通常の`Error`が`throw`される
 
 ### 補足
 ```js
@@ -194,7 +196,9 @@ new Promise((resolve) => { resolve() }).then(function() {
 - 同期処理以外の部分は`Web APIスレッド`で実行される
 - `fetch()`にはデフォルトのタイムアウト処理がない
   - `DOM API`の[AbortController](#abortcontroller)を使って管理するのが一般的
-- `options`の`body`が`FormData`オブジェクトだと`Content-Type`が`maltipart/form-data`になる
+- `options`: `body`
+  - `FormData`オブジェクトだと`Content-Type`が`maltipart/form-data`になる
+  - `URLSearchParams`オブジェクトだと。URLにクエリパラメータを付ける
 
 #### options
 | プロパティ       | 値                                       | デフォルト       | 説明                                   |
@@ -227,8 +231,8 @@ new Promise((resolve) => { resolve() }).then(function() {
 ```js
 // jsonの取得例
 async function fetchFn() {
-  const response = await fetch('接続先')
-  const json = await response.json()
+  const response = await fetch('接続先');
+  const json = await response.json();
 }
 
 // テストコード
@@ -239,9 +243,13 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
 ```
 
 ### HTTP用オブジェクト
+#### 共通使用
+- `append()`等で格納されたデータは、内部スロット`[[entries]]`に保存される、キーが不明の状態でアクセスするには`entries()`メソッドで取り出す
+
 #### FormData
 - `XHR API`(`XMLHttpRequest`)が提供
-- fileデータを値に設定可能
+- `File`オブジェクトを値に設定可能
+- `new FormData`の引数に`form`の`Element`を入れると、その要素の孫要素含む子要素全ての`name属性: value属性`を格納する
 #### URLSearchParams
 - `URL API` (`WHATWG URL`)が提供
 - `toString()`時にパラメーターの形に変換される
@@ -300,7 +308,8 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 | **setInterval API**     | `setInterval(cb, delay)`（手動実装） | `abort()` を検知して `clearInterval()` を呼ぶ |
 
 ### 自作関数をAbortSignalに対応させる
-- 必要になったらその時調べてくれ
+- `signal.addEventListener("abort", () => {})`を定義
+  - または、`if (signal.aborted)`でチェック
 
 ## DOM
 ### オブジェクト
@@ -316,6 +325,8 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 | `HTMLCollection` | **動的な要素リスト（`Element` のみを含む）** |
 | `NodeList`      | **`Element` や `Text` などを含むリスト（静的 or 動的）** |
 | `StyleSheetList` | **ページ内のスタイルシートのリスト** |
+| `FileList` | **input type="file"専用のプロパティの値、fileのリスト** |
+
 
 #### 原子型
 - メモリ上の一意のデータの参照を保存している
@@ -323,7 +334,7 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 - DeepCopyやCreateを行った際は、DOM上にはない要素がメモリに展開される
 - Node追加系のメソッド等の追加動作の追加要素に、既にDOM上にあるElementを指定すると移動する
 
-#### 列挙型
+#### 列挙型比較
 | 型名               | 動的 or 静的 | ループ処理の可否               | Arrayとの違い |
 |------------------|------------|------------------------------|----------------------|
 | `HTMLCollection` | **動的**    | `for in`, `for of`            | 配列メソッドが使えない / `querySelectorAll` とは異なる |
@@ -390,6 +401,19 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 | `element.style.property = value` | インラインスタイル変更 | `string`（取得時） | `style="..."` を直接変更 |
 | `element.getBoundingClientRect()` | 位置・サイズ取得 | `DOMRect` | 要素の位置やサイズを取得 |
 | `element.scrollIntoView()` | スクロール | `undefined` | 指定要素を画面内にスクロール |
+
+#### Elementのプロパティ
+| プロパティ                 | 取得できる内容             | 戻り値の型        |
+|--------------------------|----------------|--------------|
+| `element.textContent`   | タグ内のテキスト（HTML 無視） | `string`      |
+| `element.innerHTML`     | タグ内の HTML（タグ含む） | `string`      |
+| `element.outerHTML`     | 要素自身を含む HTML | `string`      |
+| `element.value`         | フォームの入力値 | `string`      |
+| `element.dataset`       | すべての `data-*` 属性 | `DOMStringMap` |
+| `element.getAttribute("attr")` | 特定の属性の値 | `string \| null` |
+| `element.attributes`    | 全属性の `NamedNodeMap` | `NamedNodeMap` |
+| `element.files`    | 全属性の `NamedNodeMap` | `FileList` |
+
 
 ## イベントリスナー
 ### 説明
