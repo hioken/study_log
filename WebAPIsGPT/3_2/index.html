@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>フェーズ3演習</title>
+</head>
+<body>
+    <h1>フェーズ3 総復習演習</h1>
+
+    <h2>問題1: フォーム送信</h2>
+    <form id="testForm">
+        <label>名前: <input type="text" name="username"></label>
+        <label>コメント: <input type="text" name="comment"></label>
+        <button type="button">送信</button>
+    </form>
+
+    <h2>問題2: クエリパラメータを追加</h2>
+    <button id="fetchData" data-user="nekowaka" data-age="23"}'>データ取得</button>
+    <ul id="dataList"></ul>
+
+    <h2>問題3: 画像アップロード</h2>
+    <input type="file" id="fileInput">
+    <button id="uploadFile">アップロード</button>
+
+    <h2>問題4: AbortControllerを使う</h2>
+    <button id="startFetch">リクエスト開始</button>
+    <button id="abortFetch">リクエスト中止</button>
+    
+    <script src="script.js"></script>
+</body>
+</html>
