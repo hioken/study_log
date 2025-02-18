@@ -113,3 +113,6 @@ export class Person {
 ### イベントデリゲーション
 - 伝播するイベントリスナーは、なるべく親要素にまとめる
 - 重複定義を防げる
+
+### 最適化
+- `requestAnimationFrame`の活用

@@ -56,11 +56,35 @@
 ## JavaScriptエンジン
 ### 主要コンポーネントと処理順
 1. パサー(Parser)
-  - コード解析、実行可能な抽象構文木(AST)に変換
+  - コード解析、例にもれずここもツリー状に(実行可能な抽象構文木(AST)に変換)
 2. JITコンパイラ(Just In Time Conpiler)
   - 頻繁に実行されるコードを最適化した上でネイティブコードに変換
 3. 実行エンジン(Execution Engine)
   - 実行(メモリ管理, スコープ管理含む)
+
+### AST(Abstract Syntax Tree)
+```js
+const x = 10 + 5;
+```
+```
+Program
+ ├─ VariableDeclaration
+ │   ├─ VariableDeclarator
+ │   │   ├─ Identifier (x)
+ │   │   ├─ BinaryExpression (+)
+ │   │   │   ├─ NumericLiteral (10)
+ │   │   │   ├─ NumericLiteral (5)
+
+```
+
+| ノードの種類           | 例 |
+|----------------------|-----------------------------------|
+| **Program**         | AST のルートノード |
+| **VariableDeclaration** | `const x = 10;` のような変数宣言 |
+| **BinaryExpression** | `10 + 5` のような式 |
+| **FunctionDeclaration** | `function hello() {}` の関数定義 |
+| **IfStatement** | `if (x > 10) {}` の条件分岐 |
+
 
 ## WebAPIs構成要素
 | 名称 (日本語名 + 英語名)         | 簡単な説明                                                                 |

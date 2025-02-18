@@ -513,6 +513,47 @@ document.addEventListener("click", event => {
 });
 ```
 
+## FileAPI
+### 説明
+- 構成
+  - `Blob`: バイナリデータを扱う
+  - `File`: それを継承したファイル全般を扱う
+  - `FileReader`: ファイルを読み取るAPI
+- ファイルをオブジェクトとして保持したり、パケットに入れたい時は`File`オブジェクトとして扱う
+- 実データとして扱いたい場合は、`FileReader`APIを使って各拡張子の適切な形に変換
+### 使用例
+```js
+// 画像ファイルを読み込んで、imgのsrcに設定
+const file = event.target.files[0];
+const reader = new FileReader();
+reader.readAsDataURL(file); // ファイルをBase64エンコードして読み込む
+reader.onload = () => {
+    document.getElementById("preview").src = reader.result;
+};
+```
+
+| ファイルの種類 | 保持（`File`） | 変換（`FileReader`） | 用途例 |
+|--------------|---------------|----------------------|--------|
+| **画像 (JPG, PNG, GIF)** | `File` | `readAsDataURL()` | `<img>` の `src` に設定 |
+| **テキスト (TXT, CSV, JSON)** | `File` | `readAsText()` | テキスト表示・データ解析 |
+| **バイナリ (PDF, ZIP, EXE, ISO)** | `File` | `readAsArrayBuffer()` | バイナリ処理・ダウンロード |
+| **音声・動画 (MP3, MP4, WAV)** | `File` | `readAsDataURL()` | `<audio>` や `<video>` に設定 |
+
+## TimingAPI
+### 説明
+- `WEB`版と`Node`版があるから注意
+
+### 関数
+| 対象      | 関数名                      | 引数                              | レシーバー      | 戻り値              | 説明 |
+|----------|---------------------------|---------------------------------|--------------|-----------------|------|
+| 遅延実行  | `setTimeout()`             | `(callback, delay, ...args)`    | `window`     | `number`（ID）    | 指定時間後に 1 回だけ処理を実行 |
+| 繰り返し  | `setInterval()`            | `(callback, delay, ...args)`    | `window`     | `number`（ID）    | 指定時間ごとに繰り返し処理を実行 |
+| 描画最適化 | `requestAnimationFrame()`  | `(callback)`                     | `window`     | `number`（ID）    | 次の描画フレームで処理を最適化して実行 |
+| マイクロタスク | `queueMicrotask()`      | `(callback)`                     | `window`     | `undefined`      | マイクロタスクキューに処理を追加 |
+| 時間計測  | `performance.now()`        | `()`                              | `performance` | `number`（ミリ秒） | 高精度な現在の時間（小数点以下を含む）を取得 |
+| 時間計測  | `Date.now()`               | `()`                              | `Date`       | `number`（ミリ秒） | 現在の時間を取得（精度は `performance.now()` より低い） |
+| 非同期イベント | `setImmediate()`（※Node.js） | `(callback, ...args)`            | `global`（Node.js） | `number`（ID）    | イベントループの現在の処理が終わった直後に実行（Node.js限定） |
+| 非同期イベント | `process.nextTick()`（※Node.js） | `(callback, ...args)`            | `process`（Node.js） | `undefined`      | 次のマイクロタスクのタイミングで即時実行（Node.js限定） |
 
 
 # DevTools(ブラウザのデバッガ)
@@ -526,3 +567,21 @@ document.addEventListener("click", event => {
 | **Performance** | ページのレンダリングや処理速度を分析 |
 | **Application** | localStorage, sessionStorage, Cookie, IndexedDB などの管理 |
 | **Security** | HTTPS証明書やセキュリティ情報の確認 |
+
+## Network
+| **項目**      | **役割** |
+|--------------|---------|
+| **Headers**  | 通信方式の確認（メソッド・ステータス・リクエスト/レスポンスヘッダー） |
+| **Preview**  | レスポンスデータを見やすく整形（JSONはツリー表示） |
+| **Response** | レスポンスの生データ（そのままのJSONやHTMLなど） |
+| **Initiator**| どのスクリプトがリクエストを送ったかを確認 |
+| **Timing**   | 通信の遅延原因を分析（スクリプトの問題 or サーバーの問題） |
+
+## Performance
+| **項目**        | **役割** |
+|----------------|---------|
+| **Frames**     | フレームごとのレンダリング時間（1000ms / 表示ms fps） |
+| **Main**       | JavaScriptの実行タイミング（処理が重い箇所を特定） |
+| **Timings**    | DOMContentLoaded や Load イベントのタイミング |
+| **Interactions** | ユーザーの操作（クリックやスクロール）の記録 |
+| **Bottom-Up / Call Tree** | 関数ごとの処理時間の詳細 |
