@@ -1,0 +1,70 @@
+/* ===== 軽いCSS (基本デザイン) ===== */
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    background: #333;
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: white;
+    text-decoration: none;
+}
+
+main {
+    padding: 20px;
+}
+
+section {
+    background: white;
+    padding: 20px;
+    margin-bottom: 20px;
+    border-radius: 5px;
+}
+
+/* ===== ここから重いCSS ===== */
+
+/* ▼ 重いレイアウトの開始 */
+.heavy-section {
+    background: linear-gradient(to bottom, #ff0000, #0000ff);
+    filter: blur(5px);
+    box-shadow: 10px 10px 30px rgba(0, 0, 0, 0.8);
+    transform: rotate(10deg);
+    animation: fadeIn 5s ease-in-out infinite;
+}
+
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    50% { opacity: 1; }
+    100% { opacity: 0; }
+}
+
+.heavy-section h2 {
+    text-shadow: 5px 5px 10px rgba(0, 0, 0, 0.8);
+    font-size: 3rem;
+    font-weight: bold;
+}
+
+.heavy-section p {
+    font-size: 1.5rem;
+    letter-spacing: 5px;
+    word-spacing: 10px;
+    text-transform: uppercase;
+}

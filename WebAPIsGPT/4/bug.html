@@ -1,0 +1,18 @@
+<button id="bug-button">バグ発生！</button>
+
+<script>
+    document.getElementById("bug-button").addEventListener("click", () => {
+        // ① 意図的なエラー
+        console.log(undefinedVariable);
+
+        // ② 遅すぎる非同期処理（3秒待つ）
+        setTimeout(() => {
+            document.body.style.backgroundColor = "red";
+        }, 3000);
+
+        // ③ 無限ループでブラウザをフリーズさせる
+        while (true) {
+            console.log("無限ループ中...");
+        }
+    });
+</script>
