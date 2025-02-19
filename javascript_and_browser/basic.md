@@ -952,8 +952,6 @@ console.log(sum(1, 2, 3, 4)); // 10
 | `stack`     | `string`     | スタックトレース（エラー発生箇所を示す） |
 | `cause`     | `any`        | `Error` の原因（オプション, `Error` など） |
 
-# Syntax
-
 # Debug
 ## デバッガの機能
 - break pointの設定

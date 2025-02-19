@@ -539,6 +539,26 @@ reader.onload = () => {
 | **バイナリ (PDF, ZIP, EXE, ISO)** | `File` | `readAsArrayBuffer()` | バイナリ処理・ダウンロード |
 | **音声・動画 (MP3, MP4, WAV)** | `File` | `readAsDataURL()` | `<audio>` や `<video>` に設定 |
 
+## WebStorageAPI
+- 主に二つの`Map`に近い`Storage`オブジェクトが格納された`window`のプロパティからなる
+- 容量は環境によるが、大体5MB程度
+
+| windowプロパティ | データ保持期間 | 共有範囲 |
+| `localStorage` | 無期限 | 同一オリジン内で共有 |
+| `sessionStorage` | タブが閉じられるまで
+
+- メソッドとプロパティ
+
+| 名前             | 引数                          | 戻り値      | 説明 |
+|----------------|-----------------------------|-----------|------|
+| `setItem`     | `(key: string, value: string)` | `void`    | 指定した `key` に `value` を保存（値は `string` に変換される） |
+| `getItem`     | `(key: string)`               | `string \| null` | 指定した `key` の値を取得（存在しない場合は `null`） |
+| `removeItem`  | `(key: string)`               | `void`    | 指定した `key` のデータを削除 |
+| `clear`       | `()`                          | `void`    | `Storage` に保存されている全データを削除 |
+| `key`        | `(index: number)`             | `string \| null` | 指定した `index` 番目のキーを取得（範囲外なら `null`） |
+| `length`     | `なし`                         | `number`  | `Storage` に保存されているデータの数を取得 |
+
+
 ## TimingAPI
 ### 説明
 - `WEB`版と`Node`版があるから注意
