@@ -277,6 +277,33 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
 | **イベントリスナーリスト** | `addEventListener()` 実行時         | 要素ごとに登録されたイベントを管理      | イベントリスナーを追加・削除する時 |
 | **アニメーションキャッシュ** | `transform` や `opacity` 変更時   | GPU最適化のためのデータを管理         | アニメーションや変形を適用する時 |
 
+## windowオブジェクト/WindowAPI+α
+### 説明
+- `window`: ブラウザ上のグローバルオブジェクトで、このオブジェクト自体が開いているタブ1つとして振舞う
+- コード例
+```js
+window.open("https://example.com", "_blank"); // 新しいタブ or ウィンドウで開く
+window.close(); // 現在のウィンドウを閉じる（自身で開いたもののみ）
+```
+
+### 関数一覧
+| WebAPI                  | 関数名                        | 引数                          | 戻り値         | 説明                                      |
+|-------------------------|-----------------------------|------------------------------|---------------|----------------------------------|
+| Window API             | open()                      | URL, ターゲット (`_blank` など) | `Window` オブジェクト または `null` | 新しいタブやウィンドウを開く |
+| Window API             | close()                     | なし                          | `void`        | 現在のウィンドウを閉じる（自身で開いたもののみ） |
+| Scroll API            | scrollTo()                  | `x, y` または `{top, left, behavior}` | `void`        | 指定位置までスクロール |
+| Scroll API            | scrollBy()                  | `x, y` または `{top, left, behavior}` | `void`        | 現在位置から相対的にスクロール |
+| Navigation API        | history.back()              | なし                          | `void`        | 履歴を1つ戻る（ブラウザの「戻る」ボタン相当） |
+| Navigation API        | history.forward()           | なし                          | `void`        | 履歴を1つ進む（ブラウザの「進む」ボタン相当） |
+| Navigation API        | history.go()                | インデックス (`±n`)           | `void`        | 指定した履歴の位置に移動 |
+| Navigation API        | location.assign()           | URL                           | `void`        | 指定した URL に遷移 |
+| Navigation API        | location.replace()          | URL                           | `void`        | 現在のページを指定した URL に置き換え |
+| Navigation API        | location.reload()           | `true/false`（`true` で強制リロード） | `void`        | ページをリロード |
+| Event API             | addEventListener()          | イベント名, コールバック関数  | `void`        | イベントリスナーを登録 |
+| Event API             | removeEventListener()       | イベント名, コールバック関数  | `void`        | イベントリスナーを削除 |
+| Network Information API | onLine                    | なし                          | `boolean`     | ネットワーク接続状態を取得 (`true/false`) |
+
+
 ## AbortController
 ### 説明
 - `DOM API`が提供するモジュール
@@ -449,8 +476,6 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 | `touchstart`\|`touchmove`\|`touchend` | モバイル端末 | 画面に 指が触れた\|指を動かした\|指が離れた 時 |
 | `animationstart`\|`animationend`\|`animationiteration` | `animation` 設定要素 | CSSアニメーションが 開始\|終了\|繰り返された 時 |
 | `transitionstart`\|`transitionend` | `transition` 設定要素 | CSSトランジションが 開始\|終了 した時 |
-| `fullscreenchange`       | `document`       | フルスクリーン ON/OFF 切り替え時 |
-| `visibilitychange`       | `document`       | タブの表示/非表示 切り替え時 |
 | `volumechange`           | `<video>` `<audio>` | メディアの音量が変更された時 |
 | `play`\|`pause`       | `<video>` `<audio>` | メディアが 再生\|一時停止 された時 |
 
@@ -458,11 +483,14 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 | イベント名       | レシーバーの制限 | 発火条件 |
 |----------------|--------------|--------------------------------|
 | `popstate`     | `window`     | `history.back()` / `history.forward()` で遷移時 |
+| `pageshow` \| `pagehide`      | `window`     | ページが 表示\|非表示 状態にされた時 |
 | `beforeunload` | `window`     | ページを閉じる / リロードする時 |
+| `unload`      | `window`     | ユーザーがページを離れる時（最近は非推奨） |
+| `visibilitychange`       | `document`       | タブの表示/非表示 切り替え時 |
+| `fullscreenchange`       | `document`       | フルスクリーン ON/OFF 切り替え時 |
 | `hashchange`   | `window`     | `#` の変更（例：`index.html#section1`） |
 | `load`        | `window`     | ページが完全に読み込まれた時 |
 | `DOMContentLoaded` | `document` | DOMツリーが構築された時（画像やCSSは未完了でも発火） |
-| `unload`      | `window`     | ユーザーがページを離れる時（最近は非推奨） |
 | `online` \| `offline` | `window` | ネットワークが接続 \| 切断 された時 |
 
 #### Eventオブジェクト
@@ -512,6 +540,12 @@ document.addEventListener("click", event => {
   }
 });
 ```
+
+#### ナビゲーション系のイベント
+- ページの遷移系に関わるイベント
+  - 非同期が無視される
+  -` alert`等、ページ遷移を制限等の悪意のある動作を意図的にできるものが動作しない
+  - `fetch`が無視されるため、確実にデータを送るには`sendBeacon`が必須
 
 ## FileAPI
 ### 説明
@@ -574,6 +608,19 @@ reader.onload = () => {
 | 時間計測  | `Date.now()`               | `()`                              | `Date`       | `number`（ミリ秒） | 現在の時間を取得（精度は `performance.now()` より低い） |
 | 非同期イベント | `setImmediate()`（※Node.js） | `(callback, ...args)`            | `global`（Node.js） | `number`（ID）    | イベントループの現在の処理が終わった直後に実行（Node.js限定） |
 | 非同期イベント | `process.nextTick()`（※Node.js） | `(callback, ...args)`            | `process`（Node.js） | `undefined`      | 次のマイクロタスクのタイミングで即時実行（Node.js限定） |
+
+## navigator
+- 複数のAPIにアクセス出来る`window`のプロパティ
+- 関数
+
+| WebAPI               | プロパティ / メソッド            | 説明                                      |
+|----------------------|--------------------|----------------------------------|
+| Browser API         | userAgent          | ブラウザの種類・バージョン情報 |
+| Browser API         | language           | 言語設定 (`"ja-JP"` など) |
+| Network Information API | onLine             | ネットワーク接続状態 (`true/false`) |
+| Beacon API          | sendBeacon()       | ページ終了時に確実にリクエストを送る |
+| Geolocation API     | geolocation.getCurrentPosition() | 位置情報を取得 |
+
 
 
 # DevTools(ブラウザのデバッガ)
