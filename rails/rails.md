@@ -122,16 +122,19 @@ const tempData = document.cookie
 - **config/cable.yml**:  
   Redisなどの設定ファイル
 
-# Action Job
-## 説明
-### 基礎
--- 一つのジョブごとに一つの`Job`クラスを作る
+# Action Job | sidekiq
+## action job
+### 説明
+- 非同期処理をするための機能、基本は`gem sidekiq`と組合わせて並列処理を可能にする用途で使われる
+- 一つのジョブごとに一つの`Job`クラスを作る
 - `perform`メソッド内に処理内容を定義
 - クラスから対応したメソッドを呼び出す事で、同期及び非同期定期に`perform`[メソッドを実行](#実行系メソッド)
   - `perform_later`:
     - デフォルト: ジョブキューに登録、レスポンスを返す等の同期処理が完了した後に実行
     - `Sidekiq`: 並列処理 サーバー側の処理をバックグラウンドで非同期で行えるようにする
 - クラス内部でキャンセル処理等を[事前設定できる](#クラス内部の制御定義)
+- **ジョブの成否を判断する機能は提供**されていないため、キャッシュ等で自前での管理が必要
+- エラーの伝播についてはrubyの基礎仕様と一緒
 
 ### メソッド
 #### 実行系メソッド
@@ -157,19 +160,32 @@ const tempData = document.cookie
 #### クラス内部の制御定義
 | メソッド | 説明 |
 |----------|----------------------------------------------|
-| `retry_on エラー, wait: 5.seconds, attempts: 3` | **指定エラー発生時にリトライ**（最大3回、5秒待機） |
+| `retry_on エラー, wait: time, attempts: max` | **指定エラー発生時にリトライ** |
 | `discard_on エラー` | **指定エラーが発生してもリトライせずスルー** |
 | `before_enqueue :メソッド名` | **ジョブがキューに入る前に実行** |
 | `around_perform :メソッド名` | **ジョブの前後で処理を挟む** |
 | `after_perform :メソッド名` | **ジョブ実行後に実行** |
 
+### インスタンス
+| インスタンス変数          | 説明 |
+|-----------------|--------------------------------------------------|
+| `@arguments` | `perform` に渡された引数 |
+| `@exception_executions` | どのエラーで何回リトライされたかを記録するハッシュ |
+| `@executions` | このジョブが実行された回数（リトライも含む） |
+| `@job_id` | ジョブごとに一意な ID（UUID 形式） |
+| `@priority` | キューの優先度（`nil` の場合はデフォルト） |
+| `@provider_job_id` | Sidekiq などのバックエンドがジョブを識別するための ID |
+| `@queue_name` | このジョブが入ったキュー名（`default` など） |
+| `@successfully_enqueued` | `perform_later` でキューに入れるのに成功したか（`true/false`） |
+| `@timezone` | ジョブのタイムゾーン（デフォルトは `UTC`） |
 
-## 導入/設定
-### 導入
+
+### 導入/設定
+#### 導入
 - `rails g job job_name`
 
-### 設定
-#### 設定(config.active_job)
+#### 設定
+##### 設定(config.active_job)
 | 設定項目 | 説明 | デフォルト |
 |----------|----------------------------------------------|------------|
 | `queue_adapter` | **使用するキューアダプターを設定**  | `:async` |
@@ -179,7 +195,7 @@ const tempData = document.cookie
 | `maintain_test_schema` | **テスト環境でDBスキーマを維持する** | `true` |
 | `custom_serializers` | **カスタムシリアライザを追加**（独自オブジェクトをジョブで使う場合） | `[]` |
 
-#### アダプター
+##### アダプター
 | アダプター | 説明 | 処理 |
 |------------|--------------------------|------|
 | `:async`  | **スレッドを使って即実行**（Railsサーバー内） | シングルスレッド処理 |
@@ -189,3 +205,63 @@ const tempData = document.cookie
 | `:resque` | **Redisベースのジョブキュー** | 並列 |
 | `:que` | **PostgreSQLベースのジョブキュー** | 非同期 |
 
+
+## sidekiq
+### 説明
+- `Thread`と`Process`をラップした並列処理をするためのrubyライブラリ
+- railsとは独立しているが、railsの設定ファイルに対応する機能は提供されている
+- ワーカーを立ち上げ、ジョブキューの管理と、railsやrubyのプロセス, スレッドを実行する領域を提供
+- `sidekiq`は上記の機能を外付け的に提供しているだけだから、ダウンしたとしても並列処理できなくなるだけ、並列処理前提のシステムを組んでいない限りサービスは止まらない
+- ジョブキューには外部のキャッシュシステムを使う(通常はredis)
+
+### ジョブ毎の設定
+- `Sidekiq::Job`を`include`したActionJobクラス内に、`sidekiq_options`メソッドの引数としてキーワード引数で指定
+- 一覧
+
+| 設定項目       | 説明 |
+|--------------|------------------------------------------------|
+| `retry`      | リトライ回数 (`false` にするとリトライなし) |
+| `queue`      | キューの指定（`default` や `mailers` など） |
+| `backtrace`  | エラー時にバックトレースをログに出す (`true` なら全出力) |
+| `dead`       | `false` にすると、失敗したジョブを Dead Set に入れない |
+| `unique`     | ジョブの重複を防ぐ（Gem: `sidekiq-unique-jobs` が必要） |
+| `expires_in` | Redis に保存されるジョブの有効期限（秒） |
+| `tags`       | Sidekiq Web UI でジョブにタグをつける |
+
+
+### 設定ファイル
+#### yml
+| 設定項目            | 説明 |
+|---------------------|--------------------------------|
+| `:concurrency`     | 1ワーカーあたりの最大スレッド数 |
+| `:queues`          | 処理するキューのリスト（優先度順） |
+| `:timeout`         | ジョブのタイムアウト時間（秒） |
+| `:logfile`         | ログの出力先 |
+| `:pidfile`         | PID ファイルの保存場所 |
+| `:daemon`         | デーモンモードで実行するか（true/false） |
+| `:verbose`        | 詳細なログを出力するか（true/false） |
+| `:redis`          | Redis の接続先 |
+| `:strict`         | 未定義のキューを許可するか（true: 許可しない, false: 許可する） |
+| `:require`        | Sidekiq 起動時に読み込むファイル |
+
+#### initilizer
+| 設定項目                     | 説明 |
+|------------------------------|------------------------------|
+| `Sidekiq.configure_server`   | Sidekiq サーバー側の設定 |
+| `Sidekiq.configure_client`   | Rails 側（クライアント）の設定 |
+| `Sidekiq.default_worker_options` | 全ワーカー共通のオプション |
+| `Sidekiq.logger.level`       | ログのレベル（`Logger::WARN` など） |
+| `config.redis`               | Redis の接続先 |
+| `config.server_middleware`   | サーバー側のミドルウェア追加 |
+| `config.client_middleware`   | クライアント側のミドルウェア追加 |
+| `config.error_handlers`      | ジョブ失敗時のエラーハンドラー |
+
+#### その他
+- `routes.rb`: ダッシュボードの追加
+```ruby
+require 'sidekiq/web'
+
+Rails.application.routes.draw do
+  mount Sidekiq::Web => "/sidekiq"  # http://localhost:3000/sidekiq
+end
+```
