@@ -1,4 +1,5 @@
+require 'sidekiq/web'
+
 Rails.application.routes.draw do
-  resources :messages, only: %i[index create]
-  root 'messages#index'
+  mount Sidekiq::Web => "/sidekiq"  # http://localhost:3000/sidekiq で確認
 end

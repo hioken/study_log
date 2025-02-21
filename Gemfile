@@ -73,3 +73,4 @@ end
 
 gem 'devise'
 gem 'redis', '~> 4.0'
+gem "sidekiq"
