@@ -188,9 +188,31 @@ new Promise((resolve) => { resolve() }).then(function() {
 });
 ```
 
-## HTTP
-### Fetch
-#### 説明
+# HTTP
+## HTTP用オブジェクト
+### 共通使用
+- `append()`等で格納されたデータは、内部スロット`[[entries]]`に保存される、キーが不明の状態でアクセスするには`entries()`メソッドで取り出す
+
+### FormData
+- `XHR API`(`XMLHttpRequest`)が提供
+- `File`オブジェクトを値に設定可能
+- `new FormData`の引数に`form`の`Element`を入れると、その要素の孫要素含む子要素全ての`name属性: value属性`を格納する
+### URLSearchParams
+- `URL API` (`WHATWG URL`)が提供
+- `toString()`時にパラメーターの形に変換される
+### 共通メソッド
+| **メソッド名**      | **引数**                          | **戻り値**    | **説明** |
+|------------------|--------------------------------|-----------|---------|
+| `append()`      | `key: string`, `value: any`    | `void`    | データを追加 |
+| `get()`/`getAll()`         | `key: string`                  | `any`/`any[]`     | 指定した キー/キー全て の値を取得 |
+| `set()`         | `key: string`, `value: any`    | `void`    | 指定キーの値を上書き |
+| `delete()`      | `key: string`                  | `void`    | 指定キーのデータを削除 |
+| `has()`         | `key: string`                  | `boolean` | 指定キーが存在するかチェック |
+| `entries()`     | なし                            | `Iterator<[string, any]>` | `[key, value]` のペアを反復処理可能にする |
+| `keys()`/`values()`        | なし                            | `Iterator<string>`/`Iterator<any>` | すべての キー/値 を反復処理可能にする |
+
+## Fetch
+### 説明
 - `fetch(url, options = null)`は`Fetch API`に定義されている、通常の`Function`コンストラクタのインスタンス
   - 取得情報を`resolve`の引数として返す`Promise`を返す。
   - `resolve`の引数には`Response`インスタンスのオブジェクトが返る
@@ -201,7 +223,7 @@ new Promise((resolve) => { resolve() }).then(function() {
   - `FormData`オブジェクトだと`Content-Type`が`maltipart/form-data`になる
   - `URLSearchParams`オブジェクトだと。URLにクエリパラメータを付ける
 
-#### options
+### options
 | プロパティ       | 値                                       | デフォルト       | 説明                                   |
 |--------------|-------------------------------------|--------------|--------------------------------------|
 | `method`    | `"GET"`, `"POST"`, `"PUT"`, `"DELETE"` など | `"GET"`       | HTTP メソッドを指定                  |
@@ -215,7 +237,7 @@ new Promise((resolve) => { resolve() }).then(function() {
 | `keepalive` | `true`, `false`                      | `false`       | ページ移動後もリクエストを継続するか    |
 | `signal`    | `AbortSignal`                        | `undefined`   | リクエストの中断に使う `AbortController` |
 
-#### Responseインスタンス
+### Responseインスタンス
 | プロパティ / メソッド | 説明 |
 |----------------|----------------------------------------------|
 | **`status`**  | HTTP ステータスコード（例: `200`, `404`） |
@@ -228,7 +250,7 @@ new Promise((resolve) => { resolve() }).then(function() {
 | **`arrayBuffer()`**  | `body` を `ArrayBuffer` として取得（`Promise<ArrayBuffer>`） |
 | **`clone()`**  | `Response` を複製（`body` は再利用不可なのでコピーする必要あり） |
 
-#### jsonの取得例とテストコード
+### jsonの取得例とテストコード
 ```js
 // jsonの取得例
 async function fetchFn() {
@@ -243,27 +265,45 @@ fetch("https://jsonplaceholder.typicode.com/posts/1")
   .catch(error => console.error("Error:", error));
 ```
 
-### HTTP用オブジェクト
-#### 共通使用
-- `append()`等で格納されたデータは、内部スロット`[[entries]]`に保存される、キーが不明の状態でアクセスするには`entries()`メソッドで取り出す
+## EventSource
+- `DOM Events API`が提供
+- インスタンス作成時にリクエストを送り、インスタンスにイベントを定義
 
-#### FormData
-- `XHR API`(`XMLHttpRequest`)が提供
-- `File`オブジェクトを値に設定可能
-- `new FormData`の引数に`form`の`Element`を入れると、その要素の孫要素含む子要素全ての`name属性: value属性`を格納する
-#### URLSearchParams
-- `URL API` (`WHATWG URL`)が提供
-- `toString()`時にパラメーターの形に変換される
-#### 共通メソッド
-| **メソッド名**      | **引数**                          | **戻り値**    | **説明** |
-|------------------|--------------------------------|-----------|---------|
-| `append()`      | `key: string`, `value: any`    | `void`    | データを追加 |
-| `get()`/`getAll()`         | `key: string`                  | `any`/`any[]`     | 指定した キー/キー全て の値を取得 |
-| `set()`         | `key: string`, `value: any`    | `void`    | 指定キーの値を上書き |
-| `delete()`      | `key: string`                  | `void`    | 指定キーのデータを削除 |
-| `has()`         | `key: string`                  | `boolean` | 指定キーが存在するかチェック |
-| `entries()`     | なし                            | `Iterator<[string, any]>` | `[key, value]` のペアを反復処理可能にする |
-| `keys()`/`values()`        | なし                            | `Iterator<string>`/`Iterator<any>` | すべての キー/値 を反復処理可能にする |
+| 名前 | 説明 |
+|---------------|-------------------------------------|
+| プロパティ      |-------------------------------------|
+| `url`        | 接続している SSE の URL（読み取り専用） |
+| `withCredentials` | `true` の場合、クッキーや認証情報を送信（CORS時） |
+| メソッド        |-------------------------------------|
+| `close()`    | SSE 接続を手動で閉じる |
+| `addEventListener(event, callback)` | カスタムイベントをリッスンする |
+| ハンドラ       |-------------------------------------|
+| `onopen`     | 接続成功時に呼ばれる |
+| `onmessage`  | レスポンス受信時に呼ばれる |
+| `onerror`    | エラー時に呼ばれる |
+
+- 例
+
+```js
+const eventSource = new EventSource("/events");
+
+eventSource.onmessage = (event) => {
+  console.log("受信:", event.data);
+};
+
+eventSource.onerror = () => {
+  console.error("SSE接続エラー");
+  eventSource.close();
+};
+```
+
+- カスタムイベントを設定できる
+  - `addEventListener`で設定
+  - レスポンスの`event:`の値がトリガーになる
+
+##  fetch() + ReadableStream
+- ESSでカスタムヘッダーを利用したい場合
+- 必要になった時に調べる
 
 # WebAPIs
 ## レンダリング処理時に作成される要素
@@ -445,6 +485,7 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 
 ## イベントリスナー
 ### 説明
+- `DOM Events API`が提供
 - `addEventLisner(event, callback(event), options))`でイベントリスナーを追加削除する
 - コールバック
   - 引数は`Event`オブジェクト

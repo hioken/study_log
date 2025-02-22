@@ -1,5 +1,7 @@
-# Model
-## 遅延評価(Lazy Loading)
+# Basic Feature
+
+## Model
+### 遅延評価(Lazy Loading)
 - クエリを発行するメソッドは、即座にクエリを発行せず、代わりに`ActiveRecord::Associations::CollectionProxy`等のproxyオブジェクトが返る
 - このオブジェクトからループ系やデータ取得系のメソッドを呼び出すと、初めてクエリを発行する
 ```ruby
@@ -10,14 +12,13 @@ first_date = microposts_proxy.first # この時点でクエリが発行される
 user.microposts.build(content: 'Draft') # データベースには反映されない
 user.microposts.create(content: 'Published') # 即座にINSERTが実行
 ```
-## cache
+### cache
 - selectメソッドは指定したカラムだけcacheに保存する
 - cacheの組み方
   - cacheしたいクエリを発行するアソシエーションメソッドをモデルで定義
   - それをincludes(:method)で呼び出す
-
-## methods
-### has_many
+### methods
+#### has_many
 ```ruby
 has_many :メソッド名, 
          -> { 条件 },                # スコープを指定（任意）
@@ -31,16 +32,53 @@ has_many :メソッド名,
          validate: true             # 関連付けを保存時に検証するかどうか（デフォルト: true）
 ```
 
-# Cookie API
-## 概要
-### type
+## Controller
+### responce
+- `ActionDispatch::Response`クラスのオブジェクト
+- HTTPのレスポンスを制御
+- データ構造
+```ruby
+{
+  class: "ActionDispatch::Response",
+  methods: [
+    { name: "status", description: "レスポンスのステータスコードを取得/設定する" },
+    { name: "body", description: "レスポンスの本文を取得/設定する" },
+    { name: "headers", description: "レスポンスのヘッダーを取得/設定する" },
+    { name: "content_type", description: "Content-Type ヘッダーを取得/設定する" },
+    { name: "charset", description: "文字エンコーディング（デフォルトは UTF-8）を取得/設定する" },
+    { name: "location", description: "リダイレクト先のURLを設定する（redirect_to で使われる）" },
+    { name: "set_cookie", description: "レスポンスにSet-Cookieヘッダーを追加する" },
+    { name: "delete_cookie", description: "レスポンスからCookieを削除する" },
+    # ActionController::Liveモジュールinclude時
+    { name: "stream", description: "streaming(チャンク転送)を開始する" },
+    { name: "write", description: "レスポンスボディにデータを追記する（streaming時に使用）" },
+    { name: "close", description: "レスポンスのストリームを閉じる（streaming時）" }
+  ],
+  instance_variables: [
+    { name: "@status", description: "HTTP ステータスコード（デフォルト: 200）" },
+    { name: "@header", description: "レスポンスヘッダー（Hash）" },
+    { name: "@body", description: "レスポンスの本文" }
+  ]
+}
+```
+
+### redirect_to
+- 一度レスポンスを返した後、もう一度クライアントにリクエストを送らせる
+
+-----
+
+# Native Feature
+
+## Cookie API
+### 概要
+#### type
 | クッキータイプ       | 説明                          | 用途                                |
 |------------------|-----------------------------|-----------------------------------|
 | cookies          | プレーンテキスト                  | 機密情報以外の保存                        |
 | cookies.encrypted | 自動で暗号化される                | ユーザーIDや機密情報                       |
 | cookies.signed    | 署名のみされる                   | 改ざん防止                            |
 
-### 基本操作
+#### 基本操作
 ```ruby
 # 値を取得
 cookies[:key]
@@ -68,7 +106,7 @@ cookies[:key] = { options }
 | encrypted  | 暗号化して保存                        | false             | encrypted: true                   |
 | same_site  | samesiteの別名（同じ機能）               | nil               | same_site: :lax                   |
 
-### JavaScript経由
+#### JavaScript経由
 ```javascript
 document.cookie = "temp_data=temporary_value; max-age=300; path=/";
 
@@ -79,52 +117,13 @@ const tempData = document.cookie
 ```
 
 
-# Development
-## Console
-- サンドボックスモードでコンソールを起動(全ての変更がロールバックされる)
-  - `rails console --sandbox`
+-----
 
-# Action Cable
+# Extension Feature
 
-## 概要
-- Action Cableは、WebSocketとRailsを結びつけるフルスタックのフレームワークです。  
-  - フルスタック: データベース、サーバ、フロントエンド、APIなどすべてのレイヤーを担当可能  
-- クライアント側のJavaScriptフレームワークとサーバー側のRubyフレームワークの両方を提供
-
-## websocket用語
-- **コネクション**: クライアント・サーバーの関係  
-- **コネクションインスタンス**: 一つのコネクション  
-- **コンシューマ**: クライアント側のJavaScriptフレームワークによって作成されたWebSocketコネクションのクライアント  
-- **チャネル**: 機能単位をカプセル化したもの  
-  - コンシューマはチャネルに参加（サブスクライブ）することで、その情報を受け取る  
-  - 同一のクライアントであっても別ウィンドウ等を使い、複数のコンシューマとして振る舞うことが可能  
-- **サブスクライバ**: チャネルにサブスクライブしているコンシューマ
-
-## 接続フロー
-1. クライアント側のJavaScriptでWebSocketハンドシェイクのリクエストを送信
-  - クライアント側のjs: `createConsumer()`
-  - リクエストは`/cable`
-2. Action Cableの`Connection`オブジェクトが作成され、`connect`メソッドが呼ばれてハンドシェイクレスポンスを返す
-3. クライアント側のJavascriptがチャネルにサブスクライブ`consumer.subscriptions.create`(複数回可能)
-4. Action Cableの`Channel`オブジェクトが生成され、`subscribed`メソッドが呼ばれる
-
-## 送受信フロー
-### クライアント側の送信
-1. コンシューマ側のjs`perform`でフレームを送る
-2. `perform`の引数で指定した`Channel`オブジェクトのメソッドが発火
-### ブロードキャスト
-1. `Channel`オブジェクトの`ActionCable.server.broadcast`メソッドでブロードキャスト
-2. コンシューマ側のjs`recived`メソッドが発火
-
-## 必要な設定
-- **環境ファイル** (`config/environments/`):  
-  `config.action_cable.allowed_request_origins = [許可するurl]`
-- **config/cable.yml**:  
-  Redisなどの設定ファイル
-
-# Action Job | sidekiq
-## action job
-### 説明
+## Action Job | sidekiq
+### action job
+#### 説明
 - 非同期処理をするための機能、基本は`gem sidekiq`と組合わせて並列処理を可能にする用途で使われる
 - 一つのジョブごとに一つの`Job`クラスを作る
 - `perform`メソッド内に処理内容を定義
@@ -135,15 +134,13 @@ const tempData = document.cookie
 - クラス内部でキャンセル処理等を[事前設定できる](#クラス内部の制御定義)
 - **ジョブの成否を判断する機能は提供**されていないため、キャッシュ等で自前での管理が必要
 - エラーの伝播についてはrubyの基礎仕様と一緒
-
-### 用途
+#### 用途
 - 重くてレスポンスに関係のない処理を、非同期で処理しつつレスポンスは即返す
 - 機能予約: 送信等を指定時間に送るのが楽
 - SSEとの組み合わせ: 複数集計データ等のレスポンスが重くなる時に、待機画面を即レスポンスしつつ、並列処理で個別に集計してできたものから順次返す
 - 負荷分散: ループ文等の処理をジョブキューにいれて、複数のsidekiqワーカーに処理させて負荷分散させる
-
-### メソッド
-#### 実行系メソッド
+#### メソッド
+##### 実行系メソッド
 | メソッド | 説明 |
 |----------|----------------------------------------------|
 | `perform_now` | **即時実行（シングルスレッド処理）** |
@@ -153,7 +150,7 @@ const tempData = document.cookie
 | `cancel` | **ジョブをキャンセル（実行前のみ）** |
 | `cancel_all` | **同じジョブのすべてのインスタンスをキャンセル** |
 
-#### その他メソッド
+##### その他メソッド
 | メソッド | 説明 |
 |----------|----------------------------------------------|
 | `queue_as :high_priority` | **ジョブのキューを指定（優先度変更）** |
@@ -163,7 +160,7 @@ const tempData = document.cookie
 | `executions` | **ジョブが何回実行されたかを取得** |
 | `enqueue` | **ジョブを手動でキューに登録** |
 
-#### クラス内部の制御定義
+##### クラス内部の制御定義
 | メソッド | 説明 |
 |----------|----------------------------------------------|
 | `retry_on エラー, wait: time, attempts: max` | **指定エラー発生時にリトライ** |
@@ -172,7 +169,7 @@ const tempData = document.cookie
 | `around_perform :メソッド名` | **ジョブの前後で処理を挟む** |
 | `after_perform :メソッド名` | **ジョブ実行後に実行** |
 
-### インスタンス
+#### インスタンス
 | インスタンス変数          | 説明 |
 |-----------------|--------------------------------------------------|
 | `@arguments` | `perform` に渡された引数 |
@@ -185,13 +182,11 @@ const tempData = document.cookie
 | `@successfully_enqueued` | `perform_later` でキューに入れるのに成功したか（`true/false`） |
 | `@timezone` | ジョブのタイムゾーン（デフォルトは `UTC`） |
 
-
-### 導入/設定
-#### 導入
+#### 導入/設定
+##### 導入
 - `rails g job job_name`
-
-#### 設定
-##### 設定(config.active_job)
+##### 設定
+###### 設定(config.active_job)
 | 設定項目 | 説明 | デフォルト |
 |----------|----------------------------------------------|------------|
 | `queue_adapter` | **使用するキューアダプターを設定**  | `:async` |
@@ -201,7 +196,7 @@ const tempData = document.cookie
 | `maintain_test_schema` | **テスト環境でDBスキーマを維持する** | `true` |
 | `custom_serializers` | **カスタムシリアライザを追加**（独自オブジェクトをジョブで使う場合） | `[]` |
 
-##### アダプター
+###### アダプター
 | アダプター | 説明 | 処理 |
 |------------|--------------------------|------|
 | `:async`  | **スレッドを使って即実行**（Railsサーバー内） | シングルスレッド処理 |
@@ -212,15 +207,14 @@ const tempData = document.cookie
 | `:que` | **PostgreSQLベースのジョブキュー** | 非同期 |
 
 
-## sidekiq
-### 説明
+### sidekiq
+#### 説明
 - `Thread`と`Process`をラップした並列処理をするためのrubyライブラリ
 - railsとは独立しているが、railsの設定ファイルに対応する機能は提供されている
 - ワーカーを立ち上げ、ジョブキューの管理と、railsやrubyのプロセス, スレッドを実行する領域を提供
 - `sidekiq`は上記の機能を外付け的に提供しているだけだから、ダウンしたとしても並列処理できなくなるだけ、並列処理前提のシステムを組んでいない限りサービスは止まらない
 - ジョブキューには外部のキャッシュシステムを使う(通常はredis)
-
-### ジョブ毎の設定
+#### ジョブ毎の設定
 - `Sidekiq::Job`を`include`したActionJobクラス内に、`sidekiq_options`メソッドの引数としてキーワード引数で指定
 - 一覧
 
@@ -234,9 +228,8 @@ const tempData = document.cookie
 | `expires_in` | Redis に保存されるジョブの有効期限（秒） |
 | `tags`       | Sidekiq Web UI でジョブにタグをつける |
 
-
-### 設定ファイル
-#### yml
+#### 設定ファイル
+##### yml
 | 設定項目            | 説明 |
 |---------------------|--------------------------------|
 | `:concurrency`     | 1ワーカーあたりの最大スレッド数 |
@@ -250,7 +243,7 @@ const tempData = document.cookie
 | `:strict`         | 未定義のキューを許可するか（true: 許可しない, false: 許可する） |
 | `:require`        | Sidekiq 起動時に読み込むファイル |
 
-#### initilizer
+##### initilizer
 | 設定項目                     | 説明 |
 |------------------------------|------------------------------|
 | `Sidekiq.configure_server`   | Sidekiq サーバー側の設定 |
@@ -262,7 +255,7 @@ const tempData = document.cookie
 | `config.client_middleware`   | クライアント側のミドルウェア追加 |
 | `config.error_handlers`      | ジョブ失敗時のエラーハンドラー |
 
-#### その他
+##### その他
 - `routes.rb`: ダッシュボードの追加
 ```ruby
 require 'sidekiq/web'
@@ -271,3 +264,119 @@ Rails.application.routes.draw do
   mount Sidekiq::Web => "/sidekiq"  # http://localhost:3000/sidekiq
 end
 ```
+
+-----
+
+# Network Extensions
+
+## Action Cable(WebSockets)
+### 概要
+- Action Cableは、WebSocketとRailsを結びつけるフルスタックのフレームワークです。  
+  - フルスタック: データベース、サーバ、フロントエンド、APIなどすべてのレイヤーを担当可能  
+- クライアント側のJavaScriptフレームワークとサーバー側のRubyフレームワークの両方を提供
+### websocket用語
+- **コネクション**: クライアント・サーバーの関係  
+- **コネクションインスタンス**: 一つのコネクション  
+- **コンシューマ**: クライアント側のJavaScriptフレームワークによって作成されたWebSocketコネクションのクライアント  
+- **チャネル**: 機能単位をカプセル化したもの  
+  - コンシューマはチャネルに参加（サブスクライブ）することで、その情報を受け取る  
+  - 同一のクライアントであっても別ウィンドウ等を使い、複数のコンシューマとして振る舞うことが可能  
+- **サブスクライバ**: チャネルにサブスクライブしているコンシューマ
+### 接続フロー
+1. クライアント側のJavaScriptでWebSocketハンドシェイクのリクエストを送信
+  - クライアント側のjs: `createConsumer()`
+  - リクエストは`/cable`
+2. Action Cableの`Connection`オブジェクトが作成され、`connect`メソッドが呼ばれてハンドシェイクレスポンスを返す
+3. クライアント側のJavascriptがチャネルにサブスクライブ`consumer.subscriptions.create`(複数回可能)
+4. Action Cableの`Channel`オブジェクトが生成され、`subscribed`メソッドが呼ばれる
+### 送受信フロー
+#### クライアント側の送信
+1. コンシューマ側のjs`perform`でフレームを送る
+2. `perform`の引数で指定した`Channel`オブジェクトのメソッドが発火
+#### ブロードキャスト
+1. `Channel`オブジェクトの`ActionCable.server.broadcast`メソッドでブロードキャスト
+2. コンシューマ側のjs`recived`メソッドが発火
+### 必要な設定
+- **環境ファイル** (`config/environments/`):  
+  `config.action_cable.allowed_request_origins = [許可するurl]`
+- **config/cable.yml**:  
+  Redisなどの設定ファイル
+
+## SSEモジュール(SSE)
+### 概要
+- SSE通信をサポートするモジュール
+- JSONやCSVのストリーミングもサポート
+- `response.stream`をラップして、`SSE`レスポンスに変換する
+- ラップ時のオプション
+
+# ✅ SSE.new のキーワード引数一覧
+| 引数        | デフォルト値 | 説明 |
+|------------|------------|----------------------------------------------|
+| `retry`    | `nil`      | **クライアントが切断後に再接続するまでの時間（ミリ秒）** |
+| `event`    | `nil`      | **カスタムイベント名を設定（デフォルトは `"message"`）** |
+| `id`       | `nil`      | **イベントID（クライアント側での重複回避に使える）** |
+| `encoding` | `"utf-8"`  | **エンコーディングを指定（通常は UTF-8 のままでOK）** |
+
+### コード例
+```ruby
+class SseController < ApplicationController
+  include ActionController::Live  # レスポンスをストリーミングするために必要
+
+  def events
+    response.headers["Content-Type"] = "text/event-stream"
+    response.headers["Cache-Control"] = "no-cache"
+    response.headers["Connection"] = "keep-alive"
+
+    sse = SSE.new(response.stream, retry: 3000)  # `retry` は再接続間隔（ms）
+
+    5.times do |i|
+      sse.write("メッセージ#{i}")
+      sleep 1
+    end
+  ensure
+    sse.close
+    response.stream.close
+  end
+end
+```
+
+```html
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>SSE Test</title>
+</head>
+<body>
+    <h1>SSE メッセージを受信中...</h1>
+    <ul id="messages"></ul>
+
+    <script>
+        const eventSource = new EventSource("/events");
+        const messageList = document.getElementById("messages");
+
+        eventSource.onmessage = (event) => {
+            console.log("受信:", event.data);
+            const li = document.createElement("li");
+            li.textContent = event.data;
+            messageList.appendChild(li);
+        };
+
+        eventSource.onerror = () => {
+            console.error("SSE接続エラー");
+            eventSource.close();
+        };
+    </script>
+</body>
+</html>
+```
+
+
+
+-----
+
+# Development
+
+## Console
+- サンドボックスモードでコンソールを起動(全ての変更がロールバックされる)
+  - `rails console --sandbox`
