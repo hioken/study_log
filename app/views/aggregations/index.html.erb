@@ -1,0 +1,19 @@
+<h2>SSEでメッセージを取得中...</h2>
+<ul id="aggregation-results"></ul>
+
+<script>
+  const eventSource = new EventSource("/aggregations/stream");
+  const resultList = document.getElementById("aggregation-results");
+
+  eventSource.onmessage = (event) => {
+    const data = JSON.parse(event.data);
+    const li = document.createElement("li");
+    li.textContent = data.message;
+    resultList.appendChild(li);
+  };
+
+  eventSource.onerror = () => {
+    console.error("SSE接続エラー");
+    eventSource.close();
+  };
+</script>
