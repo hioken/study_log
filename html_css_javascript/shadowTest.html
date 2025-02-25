@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重なる要素の実験</title>
+    <style>
+        .element1 {
+            width: 200px;
+            height: 200px;
+            background-color: red;
+            position: absolute;
+            top: 40px; /* 少し上にずらす */
+            left: 40px; /* 少し左にずらす */
+        }
+
+        .element2 {
+            width: 200px;
+            height: 200px;
+            background-color: gray;
+            position: absolute;
+            top: 50px;
+            left: 50px;
+            /* box-shadow: 10px 10px 20px gray; */
+        }
+    </style>
+</head>
+<body>
+
+    <div class="element1"></div>
+    <div class="element2"></div>
+
+</body>
+</html>
