@@ -395,12 +395,24 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 | `StyleSheetList` | **ページ内のスタイルシートのリスト** |
 | `FileList` | **input type="file"専用のプロパティの値、fileのリスト** |
 
-
 #### 原子型
 - メモリ上の一意のデータの参照を保存している
 - DOM上に存在する要素に変更を加えた場合、DOMを実際に操作する
 - DeepCopyやCreateを行った際は、DOM上にはない要素がメモリに展開される
 - Node追加系のメソッド等の追加動作の追加要素に、既にDOM上にあるElementを指定すると移動する
+- 便宜上Element型をさらに区別して扱う事がある
+
+```
+Node  
+└── Element  
+    ├── HTMLElement  
+    │   ├── HTMLDivElement  ← <div>  
+    │   ├── HTMLSpanElement  ← <span>  
+    │   ├── HTMLTemplateElement  ← <template>  
+    │   └── 他にも <p>, <input> など  
+    ├── SVGElement  
+    ├── 他にも MathMLElement など  
+```
 
 #### 列挙型比較
 | 型名               | 動的 or 静的 | ループ処理の可否               | Arrayとの違い |
@@ -482,6 +494,10 @@ setTimeout(() => controller.abort(), 10000); // リクエストを中断する
 | `element.attributes`    | 全属性の `NamedNodeMap` | `NamedNodeMap` |
 | `element.files`    | 全属性の `NamedNodeMap` | `FileList` |
 
+#### template
+- 表示はさせないがjsで使う前提の要素を、`templateタグ`として予めHTML上に用意しておける
+- `template要素`の`content`プロパティから、中の内容を`DocumentFragment`として取り出せる
+- `cloneNode`することで、`Element`に変換できる
 
 ## イベントリスナー
 ### 説明
