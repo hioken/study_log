@@ -116,3 +116,6 @@ export class Person {
 
 ### 最適化
 - `requestAnimationFrame`の活用
+
+### UI制御
+- UIロジックはdoMの寿命に合わせると安全
