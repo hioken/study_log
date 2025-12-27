@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    const obj = {
+      x: 1,
+      f() {
+        console.log(this);
+        return this.x;
+      }
+    };
+
+    const obj = {
+      x: 1,
+      f: () => this.x
+    };
+
+    // console.log(obj.f());
+  </script>
+</body>
+</html>

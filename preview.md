@@ -1,62 +1,44 @@
-今回はrailsで実行してますが、おそらくjsの問題なのでフレームワーク等は関係ないと予想しています。
-初歩的な質問で恐縮ですが、教えていただけると幸いです。
+以下の機能で、それぞれhotwireのどの技術を使うか案を出して
+意外と全部streamsでいいのか？って俺は思っている
 
-## 説明
-### 環境
-- rails7(turbo, action cable)
-- google chrome
-- 開発環境
+- 純粋通知: 全ページ, 通知チャネル
+  - 前ページの右下に、通知のcontainerの役割を持つ要素を配備
+  - ブロードキャスト受信時、以下の様な要素を上記のcontainer要素に追加(例はstimulusだが、実装で採用するかは別)
+```html
+<div class="notification-container" data-controller="message-notification">
+  <template data-message-notification-target="template">
+    <div class="notification">
+      <a class="notification-link">
+        <div class="notification-content">
+          <span class="notification-sender"></span>
+          <span class="notification-message"></span>
+        </div>
+      </a>
+      <button class="notification-close" data-action="click->message-notification#close">✖</button>
+    </div>
+  </template>
+</div>
+``` 
+- DM一覧のソート: DMの部屋一覧画面のみ, 通知チャネル
+  - ブロードキャスト受信時、一覧画面から対象のメッセージが送信されたチャネルに対応する部屋を上にソート
+  - その他未読マークを加えたりもする
 
-### したい事、しようとした事
-- 特定のページでのみ購読したいチャネルの購読を、ページ退出時にキャンセルさせたい
-  - 今回はDMページにいるときのみ、DMチャネル(`"channel_#{params[:channel_id]}"`)を購読させたい
-- `pagehide`や`visibilitychange`時に購読切断させようとしたが、bfcache環境下でブラウザバックで動作しない
-  - `subscriptions.remove()`
+- メッセージ一覧のソート: DM部屋詳細ページ, メッセージチャネル
+  - 既読した旨がチャネルに伝わるデータを送り返す
+  - ブロードキャスト受信時、以下の様な要素を一覧コンテナに追加
+```html
+<div class="message-box <%= 'self' if message.user_id == current_user.id %>">
+  <% if message.user_id == current_user.id %>
+    <span class="read-count" data-message-id="<%= message.id %>" data-read-count="0"></span>
+  <% end %>
 
-### 確認済みの動作
-- pagehideの発火(pagehide内に記述した同期処理は動作する)
-- click等のイベント内での購読切断
+  <div class="message-content">
+    <p class="sended_user">発言者: <%= message.user.name_with_id %></p>
+    <span><%= message.content %></span>
+  </div>
 
-### 起こっている問題やご教示いただきたい事、自分の考え等
-- ブラウザバックやタブ閉じを行った際に、`subscriptions.remove()`等の非同期処理を実行する設計が分からないため知りたい
-- 現在起こっている現象についての自分の理解が正しいのか教えていただきたい
-
-### コード
-```js
-import consumer from "channels/consumer"
-import { channelId } from "./channel_id";
-
-const dmChannel = consumer.subscriptions.create(
-  {channel: "MessageShowChannel", channel_id: channelId },
-  // 省略 
-);
-
-document.addEventListener("visibilitychange", () => {
-  consumer.subscriptions.remove(dmChannel);  // 動作しない
-  sessionStorage.setItem(`${channelId}:draft`, messageInput.value); // これは動作する
-});
-window.addEventListener("pagehide", () => {
-  consumer.subscriptions.remove(dmChannel);  // 動作しない
-  sessionStorage.setItem(`${channelId}:draft`, messageInput.value); // これは動作する
-});
-
-// 接続遮断テスト、これは動作する
-document.getElementById('test-button').addEventListener("click",() => {
-  consumer.subscriptions.remove(dmChannel);
-});
+  <div class="message-timestamp">
+    <%= l(message.updated_at, format: :short) %>
+  </div>
+</div>
 ```
-
-## 質問
-### 質問1
-現在起こっていることは、以下であっているか知りたい
-
-bfcache時に`pagehide`や`visibilitychange`内に記述した非同期処理が動作しないは、動作の順番が
-1. pagehide等のイベント検知
-2. pagehide内の同期処理を実行、非同期処理があればjobキューへ
-3. bfcacheのスナップ(この時、待機キューはスナップされない)
-4. 遷移
-5. 遷移先のスクリプト
-となり、遷移前にjobキューに入れられた非同期処理は実行されないから
-
-### 質問2
-bfcache環境下で、ブラウザバックに`subscriptions.remove()`含む非同期処理を実行する方法や設計を知りたい
