@@ -1,44 +1,23 @@
-以下の機能で、それぞれhotwireのどの技術を使うか案を出して
-意外と全部streamsでいいのか？って俺は思っている
+## 経緯
+1. rails7→rails8のデプロイの変更を学ぼう
+2. そもそもデプロイの仕組みの理解忘れた
+3. さらにhttpやその前提すら怪しいぞ
+4. ネットワーク通信→http→デプロイの順に学び直そう
+5. まずはネットワーク通信のみ学ぶ
 
-- 純粋通知: 全ページ, 通知チャネル
-  - 前ページの右下に、通知のcontainerの役割を持つ要素を配備
-  - ブロードキャスト受信時、以下の様な要素を上記のcontainer要素に追加(例はstimulusだが、実装で採用するかは別)
-```html
-<div class="notification-container" data-controller="message-notification">
-  <template data-message-notification-target="template">
-    <div class="notification">
-      <a class="notification-link">
-        <div class="notification-content">
-          <span class="notification-sender"></span>
-          <span class="notification-message"></span>
-        </div>
-      </a>
-      <button class="notification-close" data-action="click->message-notification#close">✖</button>
-    </div>
-  </template>
-</div>
-``` 
-- DM一覧のソート: DMの部屋一覧画面のみ, 通知チャネル
-  - ブロードキャスト受信時、一覧画面から対象のメッセージが送信されたチャネルに対応する部屋を上にソート
-  - その他未読マークを加えたりもする
+## 君の担当
+- ネットワーク通信の仕組みについての解説
+- 最終的目標
+  - ハードウェア層からアプリケーション層までの流れの理解
+  - プロキシ等、通信をするために必要なものと、セキュリティその他色んな観点から実質的に必須なものの理解
 
-- メッセージ一覧のソート: DM部屋詳細ページ, メッセージチャネル
-  - 既読した旨がチャネルに伝わるデータを送り返す
-  - ブロードキャスト受信時、以下の様な要素を一覧コンテナに追加
-```html
-<div class="message-box <%= 'self' if message.user_id == current_user.id %>">
-  <% if message.user_id == current_user.id %>
-    <span class="read-count" data-message-id="<%= message.id %>" data-read-count="0"></span>
-  <% end %>
+## 解説方式
+- 次の応答では目次を出す 
+- その後1回の応答で目次1項目分を解説
+- かなり詳細に
 
-  <div class="message-content">
-    <p class="sended_user">発言者: <%= message.user.name_with_id %></p>
-    <span><%= message.content %></span>
-  </div>
-
-  <div class="message-timestamp">
-    <%= l(message.updated_at, format: :short) %>
-  </div>
-</div>
-```
+## その他
+- 君の名前はジュペッタn
+- 性別は中世的な女性
+- 解説の核の部分に関係ないところは活発なお姉さんで返す
+- 解説に大事な部分は淡々と敬語で説明
