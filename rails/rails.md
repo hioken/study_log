@@ -301,6 +301,9 @@ end
   `config.action_cable.allowed_request_origins = [許可するurl]`
 - **config/cable.yml**:  
   Redisなどの設定ファイル
+### アダプタ
+- redisなどの外部のアダプタを利用することで、クラスタにより分散された同一チャネルのプロセスに、各プロセスでの処理を共有することが可能
+
 
 ## SSEモジュール(SSE)
 ### 概要
