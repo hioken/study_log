@@ -17,7 +17,7 @@
 
 ## Compilation
 ### コマンド例
-- `gcc - main.i -o main.s`
+- `gcc -S main.i -o main.s`
   - `-S`: アセンブリ言語で止める
 ### 詳細
 - 字句解析・構文解析: プリプロセス済みコードを解析し、抽象構文木 (AST) を構築。
