@@ -242,3 +242,52 @@ directive aruguments
 | `else` | 条件ディレクティブ | 条件判定において直前の条件が偽だった場合の処理を指定する。 |
 | `endif` | 条件ディレクティブ | 条件判定の一連のブロックを終了する。 |
 | `private` | ディレクティブ | 変数のスコープをターゲットとその直系のレシピ内だけに制限する。 |
+
+# Valgrind
+## 概要
+- メモリの割り当て/解放を監視するデバッガ
+- 5つのルールで構成される(default: `memcheck`)
+- Valgrindという仮想CPUの中で、プログラムを1行ずつ監視しながら動かす
+
+## ルール
+
+| **ツール名** | **役割**（大前提としての目的） |
+| :--- | :--- |
+| `memcheck` | **メモリバグ**の検出 |
+| `cachegrind` | **キャッシュミス**のプロファイリング（高速化用） |
+| `callgrind` | **関数**の呼び出し関係と**実行時間**の解析（ボトルネック発見用） |
+| `helgrind` | **マルチスレッドプログラム**の**データレース**（競合）検出 |
+| `massif` | **ヒープメモリ**の使用量推移の可視化 |
+
+## オプションリファレンス
+### core
+| **オプション** | **意味・役割** |
+| :--- | :--- |
+| `--tool=<name>` | 使用するツールを指定（デフォルトは `memcheck`） |
+| `-h`, `--help` | ヘルプを表示 |
+| `-v`, `--verbose` | より詳細なログを出力 |
+| `--log-file=<filename>` | 画面ではなく、指定したファイルに結果を書き出す |
+| `--trace-children=yes` | 子プロセス（fork されたプロセス）も追跡する |
+### memhack 
+| **オプション** | **設定値**（太字はデフォルト） | **意味・効果** |
+| :--- | :--- | :--- |
+| `--leak-check` | `no` / **summary** / `yes` / `full` | メモリリークの詳細度。 |
+| `--show-leak-kinds` | **definite,possible** / `all` / `none` | リークの種類（確定、可能性あり、間接的など）のどれを表示するか。 |
+| `--track-origins` | **no** / `yes` | `yes` にすると、「初期化されていない値」がどこで生まれたかまで遡って教えてくれる。 |
+| `--undef-value-errors` | `no` / **yes** | 初期化されていない値が使われたときにエラーを出すか。 |
+| `--show-error-list` | **no** / `yes` | 検出されたエラーのサマリーを最後にリスト表示するか。 |
+| `--error-exitcode=<number>` | **0** / `任意の数値` | エラーが見つかった場合、プログラムの終了コードを強制的に変更する。 |
+
+## 補足
+- `==n==`: nの部分はプロセスid
+
+## コマンドメモ
+- **基本的なメモリチェックをする場合**: `valgrind ./my_program`
+- **リーク詳細と未初期化変数の発生源を特定する場合（最強テンプレ）**: `valgrind --leak-check=full --track-origins=yes ./my_program`
+- **ログが長すぎるため、画面ではなくテキストファイルに保存したい場合**: `valgrind --log-file=valgrind_out.txt ./my_program`
+- **プログラム内で `fork()` を使っており、子プロセスも追跡したい場合**: `valgrind --trace-children=yes ./my_program`
+- **自動テスト（CI/CD）等で、エラー発見時に強制的に異常終了コードを返したい場合**: `valgrind --error-exitcode=1 ./my_program`
+- **マルチスレッド処理のデータ競合（レースコンディション）をチェックしたい場合**: `valgrind --tool=helgrind ./my_program`
+- **実行中のメモリ（ヒープ）使用量の推移をプロファイリングしたい場合**: `valgrind --tool=massif ./my_program`
+- **関数の呼び出し回数や実行時間を測り、処理のボトルネックを特定したい場合**: `valgrind --tool=callgrind ./my_program`
+- **コマンドライン引数（例：`arg1` `arg2`）を取るプログラムをチェックしたい場合**: `valgrind --leak-check=full ./my_program arg1 arg2`
