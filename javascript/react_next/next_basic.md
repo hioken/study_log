@@ -39,6 +39,7 @@
 ### viewport & prefetch
 - viewportを監視し、画面内(もしくはホバーされた)`<Link>`を補足する
 - prefetch: 補足した`<Link>`先で使うコンポーネントをあらかじめfetchする
+  - **loading.tsxまで**
 - `useRef`と`useIntersection`を使用した`IntersectionObserver`APIにより実装されている
 ### Nav
 1. `e.preventDefault()`によるイベントの掌握
@@ -49,8 +50,8 @@
 
 ## rendering
 ### 動静
-- RSCで毎回同じクエリが確実に出力されることが推論できるページでは、HTMLごとにbuild時に静的にキャッシュされる
-  - これは自動では更新されない
+- (~14)RSCで毎回同じクエリが確実に出力されることが推論できるページでは、HTMLごとにbuild時に静的にキャッシュされる、これは自動では更新されない
+  - 15以降は、fetchはキャッシュされない
 
 ## URL
 ### searchParams

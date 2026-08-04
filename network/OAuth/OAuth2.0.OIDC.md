@@ -42,13 +42,13 @@
 * `iss` (ISSuer)
   * 役割: IDTokenの発行者を表します。
   * 詳細: URLの形式、通常はIDプロバイダのURL
-    * `public`: 全てのクライアントに同一の値
-    * `pairwise`: クライアントごとに異なる値
 * `aud` (AUDience)
   * 役割: IDTokenの発行を受けるリライング・パーティ（RP）のクライアントIDが入ります。
   * 詳細: 文字列の配列、単一の場合は文字列でも可
 * `sub` (SUBject)
   * 役割: エンドユーザーの識別子
+    * `public`: 全てのクライアントに同一の値
+    * `pairwise`: クライアントごとに異なる値
 * `iat` (Issued AT)
   * 役割: JWTの発行時間 UNIXタイム
 * `exp` (EXPiration time)
