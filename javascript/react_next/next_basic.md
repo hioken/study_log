@@ -332,12 +332,16 @@ const actionRegistry = {
 * `layout.tsx`, `page.tsx`ファイルから、メタデータオブジェクトor生成関数をexport
 * 静的メタデータ: `metadata`定数をexport
 * 動的メタデータ: `generateMetadata`関数を用いて生成したオブジェクトをexport
+* プレースホルダー指定も可能
 ```ts
 // 静的メタデータ(app/layout.tsx or app/page.tsx)
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'Next.js 16 アプリ',
+  title: {
+    template: '%s | Next.js 16 アプリ',
+    default: 'Next.js 16 アプリ',
+  },
   description: 'Next.js 16のメタデータのテスト',
 };
 
